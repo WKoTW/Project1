@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Folietine</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Folietine">
+    <meta name="theme-color" content="#21421e">
+    <meta name="description" content="Folietine — RPG продуктивность. Жизненные квесты.">
+    
+    <!-- Apple Touch Icon (временная SVG) -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2321421e'/><text x='50' y='65' font-size='55' text-anchor='middle' fill='white'>📜</text></svg>">
+    
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: #21421e;
+            margin: 0; padding: 20px; color: #1e1a13;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            -webkit-user-select: none; user-select: none;
+        }
+        .login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #21421e; display: flex; align-items: center; justify-content: center;
+            z-index: 100; transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .login-screen.hidden { opacity: 0; visibility: hidden; }
+        .login-container {
+            display: flex; flex-direction: column; justify-content: space-between;
+            align-items: center; height: 100%; padding: 120px 20px 30px; text-align: center;
+        }
+        .app-title { font-size: 2.2rem; font-weight: 700; color: #f2e8c9; margin: 0; letter-spacing: 1px; }
+        .login-middle { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+        .login-btn {
+            width: 100px; height: 100px; background: #f2e8c9; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: transform 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .login-btn:active { transform: scale(0.96); }
+        .play-triangle {
+            width: 0; height: 0; border-style: solid; border-width: 20px 0 20px 34px;
+            border-color: transparent transparent transparent #21421e; margin-left: 8px;
+        }
+        .login-text { font-size: 1.1rem; color: #f2e8c9; font-weight: 500; }
+        .version { font-size: 0.8rem; color: #7e8f68; margin-bottom: 10px; }
+        
+        .main-screen { width: 100%; max-width: 600px; margin: 0 auto; position: relative; }
+        .main-screen.hidden { display: none; }
+        
+        .menu-button {
+            position: absolute; top: 0; left: 4px; width: 64px; height: 48px;
+            background: #e2d4b6; border-radius: 0 0 12px 12px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            font-size: 24px; font-weight: bold; box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+            z-index: 60; color: #21421e; border: 1px solid #d4c4a4; border-top: none;
+            transition: border-radius 0.25s ease;
+        }
+        .menu-button.square { border-radius: 0; }
+        .menu-button:active { background: #c9bb9a; }
+        
+        .back-button {
+            position: absolute; top: 12px; left: 12px; width: 40px; height: 40px;
+            background: #e2d4b6; border-radius: 12px; display: none;
+            align-items: center; justify-content: center; cursor: pointer;
+            font-size: 20px; font-weight: bold; z-index: 61; color: #21421e; border: 1px solid #d4c4a4;
+        }
+        .back-button.visible { display: flex; }
+        
+        .sections-dropdown {
+            position: absolute; top: 48px; left: 4px; width: 64px;
+            background: #e2d4b6; border-radius: 0 0 16px 16px; padding: 8px;
+            display: flex; flex-direction: column; gap: 8px; z-index: 55;
+            box-shadow: 2px 4px 12px rgba(0,0,0,0.15); border: 1px solid #d4c4a4; border-top: none;
+            transform: scaleY(0); transform-origin: top; opacity: 0;
+            transition: transform 0.25s ease, opacity 0.2s ease; pointer-events: none;
+        }
+        .sections-dropdown.open { transform: scaleY(1); opacity: 1; pointer-events: all; }
+        .dropdown-section-card {
+            display: flex; align-items: center; justify-content: center;
+            background: #fffdf7; width: 48px; height: 48px; border-radius: 12px;
+            cursor: pointer; transition: transform 0.15s; border: 1px solid #d4c4a4;
+        }
+        .dropdown-section-card:active { transform: scale(0.9); }
+        .dropdown-section-card.active { background: #4a7c3f; border-color: #3a6a2f; }
+        
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50; display: none; }
+        .menu-overlay.open { display: block; }
+        
+        .app-container {
+            background: #f2e8c9; border-radius: 0 32px 32px 32px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.25); overflow: hidden; padding: 60px 20px 30px;
+        }
+        
+        .profile-row { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; background: #e2d4b6; padding: 12px 16px; border-radius: 48px; }
+        .avatar { font-size: 52px; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .level-info h2 { margin: 0; font-size: 1.3rem; color: #21421e; }
+        .level-info p { margin: 4px 0 0; color: #4a5b3c; font-weight: 500; }
+        .archetype-badge { background: #6b3a8a; color: #f2e8c9; padding: 4px 12px; border-radius: 40px; font-size: 0.75rem; font-weight: 600; display: inline-block; margin-top: 4px; }
+        .rank-badge { background: #21421e; color: #f2e8c9; padding: 4px 12px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
+        .next-level-progress { background: #e2d4b6; border-radius: 24px; padding: 16px; margin-bottom: 40px; }
+        .level-progress-header { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #21421e; }
+        .level-progress-bar { background: #c9bb9a; border-radius: 20px; height: 12px; overflow: hidden; }
+        .level-progress-fill { background: #4a7c3f; height: 100%; border-radius: 20px; transition: width 0.2s; }
+        .task-section { margin-top: 24px; }
+        .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-left: 5px solid #7e9a5b; padding-left: 12px; color: #21421e; }
+        .task-card {
+            background: #fffdf7; border-radius: 20px; padding: 12px 16px; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: space-between;
+            border: 1px solid #d4c4a4; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: relative; overflow: hidden;
+        }
+        .task-card.completed { opacity: 0.6; }
+        .task-card.completed::after {
+            content: ''; position: absolute; top: 50%; left: 12px; right: 12px;
+            height: 2px; background: #4a7c3f; transform: translateY(-50%); z-index: 1;
+        }
+        .task-info { flex: 1; position: relative; z-index: 2; }
+        .task-title { font-weight: 600; font-size: 1rem; color: #1e1a13; }
+        .task-meta { font-size: 0.7rem; color: #6b6a44; display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+        .task-xp { background: #e2d4b6; padding: 2px 8px; border-radius: 30px; font-weight: bold; color: #21421e; }
+        .complete-btn { background: #4a7c3f; border: none; color: white; font-weight: bold; padding: 8px 16px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; flex-shrink: 0; position: relative; z-index: 2; }
+        .complete-btn:active { transform: scale(0.96); }
+        .empty-text { color: #8b7a5c; text-align: center; padding: 20px; font-style: italic; }
+        .quest-counter { font-size: 0.7rem; color: #6b6a44; text-align: right; margin-bottom: 4px; }
+        
+        .categories-grid { display: flex; flex-wrap: wrap; gap: 12px; padding: 10px 0; }
+        .category-card {
+            background: #fffdf7; border-radius: 16px; padding: 12px; border: 1px solid #d4c4a4;
+            cursor: pointer; transition: transform 0.1s; width: calc(50% - 6px);
+            display: flex; flex-direction: column; gap: 8px; position: relative;
+        }
+        .category-card:active { transform: scale(0.97); }
+        .category-card-header { display: flex; align-items: center; gap: 8px; }
+        .category-card-emoji { font-size: 28px; }
+        .category-card-info { flex: 1; min-width: 0; }
+        .category-card-name { font-size: 0.8rem; font-weight: 700; color: #21421e; }
+        .category-card-rank { font-size: 0.65rem; color: #4a7c3f; font-weight: 600; }
+        .category-card-progress { display: flex; flex-direction: column; gap: 3px; }
+        .category-card-progress-header { display: flex; justify-content: space-between; font-size: 0.6rem; color: #6b6a44; }
+        .category-card-progress-bar { background: #e2d4b6; border-radius: 10px; height: 6px; overflow: hidden; }
+        .category-card-progress-fill { background: #4a7c3f; height: 100%; border-radius: 10px; }
+        
+        .delete-category-btn { position: absolute; top: 0; right: 0; width: 32px; height: 32px; background: #e74c3c; border: none; border-radius: 0 16px 0 12px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; padding: 0; }
+        .rank-info-btn { width: 16px; height: 16px; border-radius: 50%; background: #4a7c3f; color: white; border: none; font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; }
+        
+        .category-detail-screen { display: none; }
+        .category-detail-screen.visible { display: block; }
+        .category-detail-header { background: #e2d4b6; border-radius: 24px; padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden; }
+        .category-detail-top { display: flex; align-items: center; gap: 12px; }
+        .category-detail-emoji { font-size: 48px; }
+        .category-detail-info h2 { margin: 0; font-size: 1.3rem; color: #21421e; }
+        .category-detail-rank-row { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+        .category-detail-progress { background: #fffdf7; border-radius: 16px; padding: 12px; }
+        .category-detail-progress-header { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; margin-bottom: 6px; color: #21421e; }
+        .category-detail-progress-bar { background: #c9bb9a; border-radius: 12px; height: 10px; overflow: hidden; }
+        .category-detail-progress-fill { background: #4a7c3f; height: 100%; border-radius: 12px; }
+        
+        .confirm-modal, .ranks-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(33,66,30,0.85); align-items: center; justify-content: center; z-index: 1000; }
+        .confirm-modal.open, .ranks-modal.open { display: flex; }
+        .confirm-modal-content, .ranks-modal-content { background: #fefcf7; max-width: 90%; width: 380px; border-radius: 32px; padding: 24px; border: 1px solid #d4c4a4; box-shadow: 0 20px 35px rgba(0,0,0,0.2); }
+        .confirm-modal-content p { color: #6b6a44; font-size: 0.95rem; margin: 0 0 20px; text-align: center; }
+        .confirm-modal-buttons { display: flex; gap: 12px; }
+        .confirm-modal-buttons button { flex: 1; padding: 12px; border-radius: 40px; border: none; font-weight: bold; cursor: pointer; }
+        .confirm-delete-btn { background: #e74c3c; color: white; }
+        .confirm-cancel-btn { background: #cbba9a; color: #21421e; }
+        .ranks-modal-content h3 { margin: 0 0 16px; color: #21421e; font-size: 1.1rem; text-align: center; }
+        .rank-list-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 10px; margin-bottom: 3px; font-size: 0.8rem; }
+        .rank-list-item.current { background: #4a7c3f; color: white; font-weight: 700; }
+        .rank-list-item:not(.current) { background: #f5f0e0; color: #21421e; }
+        .ranks-close-btn { background: #21421e; color: #f2e8c9; width: 100%; border: none; padding: 12px; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 14px; }
+        
+        .profile-header-card { background: #e2d4b6; border-radius: 24px; padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 16px; }
+        .profile-avatar-row { display: flex; align-items: center; gap: 16px; }
+        .profile-avatar-large { font-size: 64px; background: #fffdf7; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .profile-name-info h2 { margin: 0; font-size: 1.3rem; color: #21421e; }
+        .profile-rank-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+        .profile-global-progress { background: #fffdf7; border-radius: 16px; padding: 12px; }
+        .profile-global-progress-header { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; margin-bottom: 6px; color: #21421e; }
+        .profile-global-progress-bar { background: #c9bb9a; border-radius: 12px; height: 10px; overflow: hidden; }
+        .profile-global-progress-fill { background: #4a7c3f; height: 100%; border-radius: 12px; }
+        
+        .profile-stats { background: #e2d4b6; border-radius: 24px; padding: 20px; margin-bottom: 20px; }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #d4c4a4; }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-label { font-weight: 600; color: #21421e; }
+        .stat-value { color: #4a7c3f; font-weight: 700; }
+        .achievements-list { background: #e2d4b6; border-radius: 24px; padding: 20px; }
+        .achievement-item { padding: 8px 0; border-bottom: 1px solid #d4c4a4; color: #21421e; font-size: 0.9rem; }
+        .achievement-item:last-child { border-bottom: none; }
+        
+        .xp-preview { background: #4a7c3f; color: #f2e8c9; padding: 10px 16px; border-radius: 12px; text-align: center; font-weight: 700; font-size: 1.1rem; margin-top: 8px; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(33,66,30,0.85); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: #fefcf7; max-width: 90%; width: 400px; border-radius: 32px; padding: 24px; border: 1px solid #d4c4a4; box-shadow: 0 20px 35px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal-content h3 { margin-top: 0; color: #21421e; }
+        .modal-content label { font-weight: 600; color: #21421e; display: block; margin-top: 12px; }
+        .modal-content input, .modal-content select { width: 100%; padding: 12px; margin: 6px 0 8px; border-radius: 24px; border: 1px solid #cbba9a; font-size: 1rem; background: white; }
+        .modal-buttons { display: flex; gap: 12px; margin-top: 20px; }
+        .modal-buttons button { flex: 1; padding: 12px; border-radius: 40px; border: none; font-weight: bold; cursor: pointer; }
+        .modal-buttons button:first-child { background: #21421e; color: #f2e8c9; }
+        .modal-buttons button:last-child { background: #cbba9a; color: #21421e; }
+        .add-button { background: #21421e; color: #f2e8c9; width: 100%; border: none; padding: 14px; border-radius: 60px; font-weight: bold; font-size: 1rem; margin-top: 20px; cursor: pointer; }
+        
+        .add-task-fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #4a7c3f; color: #f2e8c9; border: none; border-radius: 50%; font-size: 32px; font-weight: bold; cursor: pointer; box-shadow: 0 6px 16px rgba(0,0,0,0.25); z-index: 20; display: flex; align-items: center; justify-content: center; }
+        .add-task-fab:active { transform: scale(0.9); }
+        
+        /* PWA Install Banner */
+        .pwa-install-banner {
+            display: none;
+            position: fixed; bottom: 100px; left: 20px; right: 20px;
+            background: #e2d4b6; border-radius: 16px; padding: 16px;
+            z-index: 200; text-align: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            border: 2px solid #4a7c3f;
+        }
+        .pwa-install-banner.show { display: block; }
+        .pwa-install-banner p { margin: 0 0 10px; font-weight: 600; color: #21421e; }
+        .pwa-install-btn {
+            background: #4a7c3f; color: white; border: none;
+            padding: 10px 24px; border-radius: 24px;
+            font-weight: bold; font-size: 0.9rem; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <div class="app-title">Folietine</div>
+            <div class="login-middle"><div class="login-btn" id="loginBtn"><div class="play-triangle"></div></div><div class="login-text">Войти в систему</div></div>
+            <div class="version">v1.0</div>
+        </div>
+    </div>
+    
+    <div class="main-screen hidden" id="mainScreen">
+        <div class="menu-button" id="menuButton">☰</div>
+        <div class="back-button" id="backButton">←</div>
+        <div class="menu-overlay" id="menuOverlay"></div>
+        <div class="sections-dropdown" id="sectionsDropdown">
+            <div class="dropdown-section-card active" data-section="main">🏠</div>
+            <div class="dropdown-section-card" data-section="categories">📁</div>
+            <div class="dropdown-section-card" data-section="profile">👤</div>
+        </div>
+        <div class="app-container">
+            <div id="mainSection">
+                <div class="profile-row"><div class="avatar" id="avatarEmoji">😎</div><div class="level-info"><h2>Folietine</h2><p><span class="rank-badge" id="globalRank">Ур. 1</span></p><p><span class="archetype-badge" id="globalArchetype">🧘 Монах-дедлайн</span></p></div></div>
+                <div class="next-level-progress"><div class="level-progress-header"><span>До следующего уровня</span><span id="xpToNextLevel">0 / 100 XP</span></div><div class="level-progress-bar"><div class="level-progress-fill" id="xpProgressFill" style="width:0%;"></div></div></div>
+                <div class="task-section"><div class="section-title">⚔️ Квесты</div><div class="quest-counter" id="questCounter"></div><div id="questsList"></div></div>
+                <div class="task-section"><div class="section-title">🔄 Ежедневные</div><div id="dailyTasksList"></div></div>
+            </div>
+            <div id="categoriesSection" style="display:none;"><div class="section-title">📁 Мои категории</div><div id="categoriesGrid" class="categories-grid"></div><button class="add-button" id="addCategoryBtn">+ Новая категория</button></div>
+            <div id="categoryDetailSection" class="category-detail-screen"><div class="category-detail-header" id="categoryDetailHeader"></div><div class="task-section"><div class="section-title">📋 Задачи категории</div><div id="categoryTasksList"></div></div></div>
+            <div id="profileSection" style="display:none;"><div class="section-title">👤 Мой профиль</div><div class="profile-header-card" id="profileHeaderCard"></div><div class="section-title" style="margin-top:24px;">📊 Характеристики</div><div class="profile-stats" id="profileStats"></div><div class="section-title" style="margin-top:24px;">🏅 Достижения</div><div class="achievements-list" id="achievementsList"></div></div>
+        </div>
+        <button class="add-task-fab" id="addTaskFab">+</button>
+    </div>
+    
+    <div class="confirm-modal" id="confirmDeleteModal"><div class="confirm-modal-content"><p>Все достижения и прогресс будут утеряны.</p><div class="confirm-modal-buttons"><button class="confirm-cancel-btn" id="confirmCancelBtn">Отмена</button><button class="confirm-delete-btn" id="confirmDeleteBtn">Удалить</button></div></div></div>
+    <div class="ranks-modal" id="ranksModal"><div class="ranks-modal-content"><h3 id="ranksModalTitle">Система званий</h3><div id="ranksList"></div><button class="ranks-close-btn" id="ranksCloseBtn">Понятно</button></div></div>
+    
+    <div id="taskModal" class="modal"><div class="modal-content"><h3>Новый квест</h3><label>Название</label><input type="text" id="taskTitle" maxlength="60"><label>Категория</label><select id="taskCategory"></select><label>Сложность</label><select id="taskDifficulty"><option value="easy">🟢 Лёгкий</option><option value="medium" selected>🟡 Средний</option><option value="hard">🟠 Сложный</option><option value="expert">🔴 Экспертный</option><option value="insane">💀 Сумасшедший</option></select><label>Тип</label><select id="taskType"><option value="quest">⚔️ Квест</option><option value="daily">🔄 Дейлик</option></select><div id="deadlineGroup"><label>Срок</label><select id="taskDeadlineSelect"><option value="1">Сегодня (1 день)</option><option value="2-3">2-3 дня</option><option value="4-7" selected>4-7 дней</option><option value="8-14">8-14 дней</option><option value="15-30">15-30 дней</option><option value="31-90">1-3 месяца</option><option value="91-180">Полгода</option><option value="181-365">Год</option><option value="nolimit">♾️ Бессрочный</option></select></div><div id="xpPreview" class="xp-preview">🏆 Награда: 10 XP</div><div class="modal-buttons"><button id="saveTaskBtn">Создать</button><button id="closeModalBtn">Отмена</button></div></div></div>
+    <div id="categoryModal" class="modal"><div class="modal-content"><h3>Новая категория</h3><label>Название</label><input type="text" id="newCategoryName" maxlength="30"><label>Эмодзи</label><input type="text" id="newCategoryEmoji" maxlength="5" value="📁"><div class="modal-buttons"><button id="saveCategoryBtn">Создать</button><button id="closeCategoryModalBtn">Отмена</button></div></div></div>
+    
+    <!-- PWA Install Banner -->
+    <div class="pwa-install-banner" id="pwaInstallBanner">
+        <p>📜 Установи Folietine на телефон!</p>
+        <button class="pwa-install-btn" id="pwaInstallBtn">Установить</button>
+    </div>
+    
+    <script>
+    // ========== PWA: Register Service Worker ==========
+    if ('serviceWorker' in navigator) {
+        const swCode = `
+            const CACHE_NAME = 'folietine-v1';
+            const urlsToCache = ['/'];
+            
+            self.addEventListener('install', event => {
+                event.waitUntil(
+                    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+                );
+                self.skipWaiting();
+            });
+            
+            self.addEventListener('activate', event => {
+                event.waitUntil(
+                    caches.keys().then(keys => Promise.all(
+                        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+                    ))
+                );
+                self.clients.claim();
+            });
+            
+            self.addEventListener('fetch', event => {
+                event.respondWith(
+                    caches.match(event.request).then(response => response || fetch(event.request))
+                );
+            });
+        `;
+        
+        const swBlob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(swBlob);
+        
+        navigator.serviceWorker.register(swUrl)
+            .then(reg => console.log('SW registered'))
+            .catch(err => console.log('SW registration failed', err));
+    }
+    
+    // ========== PWA: Manifest ==========
+    const manifest = {
+        name: 'Folietine',
+        short_name: 'Folietine',
+        description: 'RPG продуктивность — жизненные квесты',
+        start_url: location.href,
+        display: 'standalone',
+        background_color: '#21421e',
+        theme_color: '#21421e',
+        orientation: 'portrait',
+        icons: [{
+            src: "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#21421e"/><text x="256" y="340" font-size="280" text-anchor="middle" fill="white">📜</text></svg>'),
+            sizes: '512x512',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+        }]
+    };
+    
+    const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    const manifestUrl = URL.createObjectURL(manifestBlob);
+    const linkEl = document.createElement('link');
+    linkEl.rel = 'manifest';
+    linkEl.href = manifestUrl;
+    document.head.appendChild(linkEl);
+    
+    // ========== PWA: Install Prompt ==========
+    let deferredPrompt;
+    const installBanner = document.getElementById('pwaInstallBanner');
+    const installBtn = document.getElementById('pwaInstallBtn');
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        setTimeout(() => installBanner.classList.add('show'), 3000);
+    });
+    
+    installBtn.addEventListener('click', () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => {
+                installBanner.classList.remove('show');
+                deferredPrompt = null;
+            });
+        }
+    });
+    
+    window.addEventListener('appinstalled', () => {
+        installBanner.classList.remove('show');
+        console.log('PWA installed!');
+    });
+    
+    // ========== GAME CODE ==========
+    const MAX_VISIBLE_QUESTS = 3;
+    
+    function getXPForLevel(l){if(l<=10)return 100;if(l<=20)return 200;if(l<=30)return 400;if(l<=40)return 700;if(l<=50)return 1100;if(l<=60)return 1600;if(l<=70)return 2200;if(l<=80)return 3000;if(l<=90)return 4000;return 5500;}
+    function getLevelFromXP(t){let x=t,l=1;while(x>=getXPForLevel(l)){x-=getXPForLevel(l);l++;if(l>100)break;}return Math.min(l,100);}
+    function getXPInCurrentLevel(t){let x=t,l=1;while(x>=getXPForLevel(l)){x-=getXPForLevel(l);l++;if(l>100)return 0;}return x;}
+    
+    const CATEGORY_RANKS={
+        study:["Ученик","Студент","Исследователь","Эрудит","Мыслитель","Мудрец","Философ","Просветлённый","Гений","Специалист","Доцент","Маг волшебник"],
+        health:["Новичок","Активист","Атлет","Воин","Гладиатор","Чемпион","Терминатор","Сверхчеловек","Полубог","Неудержимый","Бог","Титан"],
+        future:["Стажёр","Специалист","Профи","Эксперт","Мастер","Виртуоз","Гуру","Инноватор","Визионер","Создатель","Магнат","Тони Старк"],
+        selfreal:["Мечтатель","Искатель","Творец","Свояк","Вдохновитель","Созидатель","Душа компании","Маэстро","Легенда","Икона","Феномен","Сам себе психолог"]
+    };
+    const RANK_RANGES=[{min:1,max:4},{min:5,max:9},{min:10,max:15},{min:16,max:22},{min:23,max:30},{min:31,max:39},{min:40,max:49},{min:50,max:60},{min:61,max:72},{min:73,max:85},{min:86,max:95},{min:96,max:100}];
+    function getRankIndex(l){for(let i=0;i<RANK_RANGES.length;i++){if(l>=RANK_RANGES[i].min&&l<=RANK_RANGES[i].max)return i;}return 11;}
+    function getCategoryRank(t,l){const r=CATEGORY_RANKS[t]||CATEGORY_RANKS.study;return r[getRankIndex(l)]||r[11];}
+    
+    const ARCHETYPES={
+        study_health:{name:'Монах-дедлайн',emoji:'🧘'},study_future:{name:'Лорд Гугл',emoji:'♟️'},study_selfreal:{name:'Заклинатель дедлайнов',emoji:'🌟'},
+        health_study:{name:'Боевой эрудит',emoji:'🧠'},health_future:{name:'Паладин продуктивности',emoji:'👑'},health_selfreal:{name:'Бард-качок',emoji:'⚡'},
+        future_study:{name:'Шаман Excel',emoji:'📈'},future_health:{name:'Варвар корпораций',emoji:'🏆'},future_selfreal:{name:'Друид стартапов',emoji:'💼'},
+        selfreal_study:{name:'Маг вдохновения',emoji:'🔥'},selfreal_health:{name:'Чародей харизмы',emoji:'🎭'},selfreal_future:{name:'Оракул фриланса',emoji:'🔮'}
+    };
+    
+    function getSpecialTitles(){
+        const t=[];
+        if(categories.length>=4&&categories.every(c=>getLevelFromXP(c.xp)>=10))t.push({name:'Аватар баланса',emoji:'⚖️'});
+        if(categories.some(c=>getLevelFromXP(c.xp)>=50))t.push({name:'Архимаг упорства',emoji:'👁️'});
+        if(getCompletedTasksCount()>=100)t.push({name:'Герой ста квестов',emoji:'💯'});
+        if(getCompletedTasksCount()>=7&&getFailedTasksCount()===0)t.push({name:'Хранитель дисциплины',emoji:'🛡️'});
+        return t;
+    }
+    
+    const DIFF_ORDER={easy:0,medium:1,hard:2,expert:3,insane:4};
+    const DEAD_ORDER={1:0,'2-3':1,'4-7':2,'8-14':3,'15-30':4,'31-90':5,'91-180':6,'181-365':7,nolimit:8};
+    function sortQuests(arr){return[...arr].sort((a,b)=>{const dA=DIFF_ORDER[a.difficulty]??1,dB=DIFF_ORDER[b.difficulty]??1;if(dA!==dB)return dA-dB;const dlA=DEAD_ORDER[a.deadlineCategory]??4,dlB=DEAD_ORDER[b.deadlineCategory]??4;return dlA-dlB;});}
+    
+    const DIFF_M={easy:0.7,medium:1.0,hard:1.5,expert:2.2,insane:3.0};
+    const DAILY_P={easy:3,medium:5,hard:8,expert:10,insane:15};
+    function getCatMult(l){if(l<=5)return 1.0;if(l<=10)return 1.3;if(l<=15)return 1.6;if(l<=20)return 2.0;if(l<=30)return 2.5;return 3.0;}
+    const DEAD_M={1:0.6,'2-3':0.8,'4-7':1.0,'8-14':1.3,'15-30':1.7,'31-90':2.2,'91-180':2.5,'181-365':3.0,nolimit:0.5};
+    
+    let currentSection='main',selectedCategoryId=null,categoryToDelete=null;
+    
+    document.getElementById('loginBtn').addEventListener('click',()=>{
+        loginScreen.classList.add('hidden');mainScreen.classList.remove('hidden');
+        if(!localStorage.getItem("folietine_init")){localStorage.removeItem("kvest_categories");localStorage.removeItem("kvest_tasks");localStorage.removeItem("kvest_templates");localStorage.setItem("folietine_init","1");categories=getDefaultCats();tasks=[];dailyTemplates=[];saveData();}
+        renderUI();
+    });
+    
+    const menuBtn=document.getElementById('menuButton'),sectDrop=document.getElementById('sectionsDropdown'),menuOvl=document.getElementById('menuOverlay'),backBtn=document.getElementById('backButton');
+    function openDr(){sectDrop.classList.add('open');menuOvl.classList.add('open');menuBtn.classList.add('square');}
+    function closeDr(){sectDrop.classList.remove('open');menuOvl.classList.remove('open');menuBtn.classList.remove('square');}
+    menuBtn.addEventListener('click',e=>{e.stopPropagation();sectDrop.classList.contains('open')?closeDr():openDr();});
+    menuOvl.addEventListener('click',closeDr);
+    document.addEventListener('click',e=>{if(sectDrop.classList.contains('open')&&!sectDrop.contains(e.target)&&e.target!==menuBtn)closeDr();});
+    backBtn.addEventListener('click',()=>switchSection('categories'));
+    
+    document.getElementById('confirmCancelBtn').addEventListener('click',()=>{document.getElementById('confirmDeleteModal').classList.remove('open');categoryToDelete=null;});
+    document.getElementById('confirmDeleteBtn').addEventListener('click',()=>{if(categoryToDelete){deleteCategory(categoryToDelete);categoryToDelete=null;}document.getElementById('confirmDeleteModal').classList.remove('open');});
+    document.getElementById('ranksCloseBtn').addEventListener('click',()=>document.getElementById('ranksModal').classList.remove('open'));
+    
+    function getDefaultCats(){return[{id:"s1",name:"Саморазвитие",emoji:"📚",xp:45,type:"study"},{id:"h1",name:"Здоровье",emoji:"❤️",xp:120,type:"health"},{id:"f1",name:"Будущее",emoji:"🚀",xp:80,type:"future"},{id:"sr1",name:"Самореализация",emoji:"🎨",xp:30,type:"selfreal"}];}
+    let categories=getDefaultCats();
+    let tasks=[],dailyTemplates=[];
+    
+    function getGlobalXP(){return categories.reduce((s,c)=>s+c.xp,0);}
+    function getCompletedTasksCount(){return tasks.filter(t=>t.isCompleted).length;}
+    function getFailedTasksCount(){return tasks.filter(t=>t.isFailed).length;}
+    function getTotalXPEarned(){return tasks.filter(t=>t.isCompleted).reduce((s,t)=>s+(t.xpReward||0),0);}
+    function getTotalXPLost(){return tasks.filter(t=>t.isFailed).reduce((s,t)=>s+Math.floor((t.xpReward||0)*0.75),0);}
+    function getBestCategory(){if(!categories.length)return"—";const s=[...categories].sort((a,b)=>getLevelFromXP(b.xp)-getLevelFromXP(a.xp)||b.xp-a.xp);return s[0].emoji+' '+s[0].name;}
+    function getGlobalArchetype(){
+        if(categories.length<2){const c=categories[0];if(!c)return{name:'Путник',emoji:'🌍'};return{name:getCategoryRank(c.type,getLevelFromXP(c.xp)),emoji:c.emoji};}
+        const s=[...categories].sort((a,b)=>{const la=getLevelFromXP(a.xp),lb=getLevelFromXP(b.xp);if(la!==lb)return lb-la;return b.xp-a.xp;});
+        const k=s[0].type+'_'+s[1].type;return ARCHETYPES[k]||{name:s[0].name+' + '+s[1].name,emoji:s[0].emoji};
+    }
+    
+    function calcXP(diff,catId,dead,isD){
+        if(isD){const l=getLevelFromXP(getGlobalXP());return Math.round(getXPForLevel(l)*(DAILY_P[diff]||5)/100);}
+        const c=categories.find(x=>x.id===catId);const cm=c?getCatMult(getLevelFromXP(c.xp)):1.0;const dm=DIFF_M[diff]||1.0;const ddm=DEAD_M[dead]||1.0;return Math.round(10*dm*cm*ddm);
+    }
+    
+    function saveData(){localStorage.setItem("kvest_categories",JSON.stringify(categories));localStorage.setItem("kvest_tasks",JSON.stringify(tasks));localStorage.setItem("kvest_templates",JSON.stringify(dailyTemplates));}
+    function loadData(){
+        const sc=localStorage.getItem("kvest_categories"),st=localStorage.getItem("kvest_tasks"),sp=localStorage.getItem("kvest_templates");
+        if(sc){categories=JSON.parse(sc).map(c=>{if(!c.type){if(c.name.includes("Саморазвитие")||c.name.includes("Обучение"))c.type="study";else if(c.name.includes("Здоровье"))c.type="health";else if(c.name.includes("Будущее")||c.name.includes("Работа"))c.type="future";else if(c.name.includes("Самореализация"))c.type="selfreal";else c.type="custom";}return c;});}
+        if(st)tasks=JSON.parse(st).map(t=>{if(t.isFailed===undefined)t.isFailed=false;if(t.isCompleted===undefined)t.isCompleted=false;if(t.difficulty===undefined)t.difficulty='medium';if(t.xpReward===undefined)t.xpReward=10;if(t.type==='priority')t.type='quest';if(!t.deadlineCategory)t.deadlineCategory='4-7';return t;});
+        if(sp)dailyTemplates=JSON.parse(sp);
+    }
+    
+    function applyPenalty(t){if(t.isCompleted||t.isFailed)return false;const c=categories.find(x=>x.id===t.categoryId);if(!c)return false;c.xp=Math.max(0,c.xp-Math.floor((t.xpReward||10)*0.75));t.isFailed=true;saveData();return true;}
+    function completeTask(id){const t=tasks.find(x=>String(x.id)===String(id));if(!t||t.isCompleted||t.isFailed)return false;const c=categories.find(x=>x.id===t.categoryId);if(c&&t.xpReward)c.xp+=t.xpReward;t.isCompleted=true;saveData();renderUI();return true;}
+    
+    function syncDaily(){const ts=new Date().toDateString();const todayTasks=tasks.filter(t=>t.type==="daily"&&t.dailyDate===ts);const completedToday=todayTasks.filter(t=>t.isCompleted);tasks=tasks.filter(t=>!(t.type==="daily"&&t.dailyDate!==ts&&(t.isCompleted||t.isFailed)));for(let tp of dailyTemplates){if(!tasks.some(t=>t.type==="daily"&&t.dailyDate===ts&&t.title===tp.title)&&!completedToday.some(t=>t.title===tp.title)){tasks.push({id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),title:tp.title,categoryId:tp.categoryId||'global',xpReward:tp.xpReward||10,type:"daily",difficulty:tp.difficulty||'medium',isCompleted:false,isFailed:false,dailyDate:ts,createdAt:new Date().toISOString()});}}saveData();}
+    
+    function checkOverdue(){const n=new Date();let ch=false;for(let t of tasks){if((t.type==="quest"||t.type==="priority")&&!t.isCompleted&&!t.isFailed&&t.deadline&&new Date(t.deadline)<n&&t.deadlineCategory!=='nolimit'){if(applyPenalty(t))ch=true;}}const ts=new Date().toDateString();for(let t of tasks.filter(x=>x.type==="daily"&&!x.isCompleted&&!x.isFailed&&x.dailyDate!==ts)){if(applyPenalty(t))ch=true;}if(ch){saveData();renderUI();}}
+    
+    function addTask(ti,ci,xp,ty,diff,dl=null){if(!ti||!ti.trim())return false;const nt={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),title:ti.trim(),categoryId:ci,xpReward:parseInt(xp)||10,type:ty==='daily'?'daily':'quest',difficulty:diff||'medium',isCompleted:false,isFailed:false,createdAt:new Date().toISOString(),deadlineCategory:dl||'4-7'};
+    if(nt.type==="quest"){if(dl==='nolimit'){nt.deadline=null;nt.deadlineCategory='nolimit';}else{const dm={1:1,'2-3':2,'4-7':5,'8-14':10,'15-30':21,'31-90':60,'91-180':135,'181-365':270};const d=new Date();d.setDate(d.getDate()+(dm[dl]||5));d.setHours(23,59,59);nt.deadline=d.toISOString();nt.deadlineCategory=dl;}}else{nt.dailyDate=new Date().toDateString();if(!dailyTemplates.some(dt=>dt.title===ti.trim())){dailyTemplates.push({id:nt.id,title:ti.trim(),categoryId:ci||'global',xpReward:parseInt(xp)||10,difficulty:diff||'medium'});}}
+    tasks.push(nt);saveData();return true;}
+    
+    function addCategory(n,em,tp){if(!n||!n.trim())return false;categories.push({id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),name:n.trim(),emoji:em||"📁",xp:0,type:tp||'custom'});saveData();renderUI();return true;}
+    function confirmDeleteCategory(id){if(categories.length<=1){alert("Нельзя удалить последнюю категорию!");return;}categoryToDelete=id;document.getElementById('confirmDeleteModal').classList.add('open');}
+    function deleteCategory(id){categories=categories.filter(c=>String(c.id)!==String(id));tasks=tasks.filter(t=>String(t.categoryId)!==String(id));dailyTemplates=dailyTemplates.filter(d=>String(d.categoryId)!==String(id));if(selectedCategoryId&&String(selectedCategoryId)===String(id))selectedCategoryId=null;saveData();if(currentSection==='category-detail')switchSection('categories');else renderUI();}
+    function showCategoryDetail(id){selectedCategoryId=id;switchSection('category-detail');}
+    
+    function showRanksInfo(cid){
+        const cat=cid?categories.find(c=>c.id===cid):null;
+        const lvl=cat?getLevelFromXP(cat.xp):getLevelFromXP(getGlobalXP());
+        const ranks=cat&&CATEGORY_RANKS[cat.type]?CATEGORY_RANKS[cat.type]:null;
+        document.getElementById('ranksModalTitle').textContent=ranks?'Звания: '+cat.name:'Система званий';
+        document.getElementById('ranksList').innerHTML=RANK_RANGES.map((r,i)=>{const isC=lvl>=r.min&&lvl<=r.max;return`<div class="rank-list-item${isC?' current':''}"><span>${isC?'⭐ ':''}${ranks?ranks[i]:'Ранг '+(i+1)}</span><span>Ур. ${r.min}-${r.max}</span></div>`;}).join('');
+        document.getElementById('ranksModal').classList.add('open');
+    }
+    
+    function switchSection(s){
+        currentSection=s;
+        document.getElementById('mainSection').style.display='none';document.getElementById('categoriesSection').style.display='none';
+        document.getElementById('categoryDetailSection').classList.remove('visible');document.getElementById('profileSection').style.display='none';
+        if(s==='main'){document.getElementById('mainSection').style.display='block';backBtn.classList.remove('visible');menuBtn.style.display='flex';}
+        else if(s==='categories'){document.getElementById('categoriesSection').style.display='block';backBtn.classList.remove('visible');menuBtn.style.display='flex';selectedCategoryId=null;}
+        else if(s==='category-detail'){document.getElementById('categoryDetailSection').classList.add('visible');backBtn.classList.add('visible');menuBtn.style.display='none';}
+        else if(s==='profile'){document.getElementById('profileSection').style.display='block';backBtn.classList.remove('visible');menuBtn.style.display='flex';}
+        document.querySelectorAll('.dropdown-section-card').forEach(c=>{c.classList.remove('active');if(c.getAttribute('data-section')===s||(s==='category-detail'&&c.getAttribute('data-section')==='categories'))c.classList.add('active');});
+        if(s!=='category-detail')closeDr();
+        renderUI();
+    }
+    
+    document.querySelectorAll('.dropdown-section-card').forEach(c=>{c.addEventListener('click',e=>{e.stopPropagation();switchSection(c.getAttribute('data-section'));});});
+    document.getElementById('addTaskFab').addEventListener('click',()=>{fillCats();document.getElementById('taskModal').style.display='flex';updateXP();});
+    
+    const tdSel=document.getElementById('taskDifficulty'),ttSel=document.getElementById('taskType'),tdlSel=document.getElementById('taskDeadlineSelect'),tcSel=document.getElementById('taskCategory'),dlGrp=document.getElementById('deadlineGroup');
+    function updateXP(){document.getElementById('xpPreview').innerHTML='🏆 Награда: '+calcXP(tdSel.value,tcSel.value,tdlSel.value,ttSel.value==='daily')+' XP';}
+    tdSel.addEventListener('change',updateXP);ttSel.addEventListener('change',()=>{dlGrp.style.display=ttSel.value==='daily'?'none':'block';updateXP();});tdlSel.addEventListener('change',updateXP);tcSel.addEventListener('change',updateXP);
+    function fillCats(){document.getElementById("taskCategory").innerHTML=categories.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join("");}
+    
+    function renderUI(){
+        const gXP=getGlobalXP(),gLvl=getLevelFromXP(gXP),xpInL=getXPInCurrentLevel(gXP),xpForN=getXPForLevel(gLvl),pp=Math.min(100,(xpInL/xpForN)*100);
+        const arch=getGlobalArchetype();
+        const srt=[...categories].sort((a,b)=>getLevelFromXP(b.xp)-getLevelFromXP(a.xp)||b.xp-a.xp);
+        const domCat=srt[0],domRank=domCat?getCategoryRank(domCat.type,getLevelFromXP(domCat.xp)):'Ранг 1';
+        
+        document.getElementById("globalRank").innerHTML=`Ур. ${gLvl} · ${domRank}`;
+        document.getElementById("globalArchetype").innerHTML=`${arch.emoji} ${arch.name}`;
+        document.getElementById("xpToNextLevel").innerHTML=`${xpInL} / ${xpForN} XP`;
+        document.getElementById("xpProgressFill").style.width=`${pp}%`;
+        
+        const dE={easy:'🟢',medium:'🟡',hard:'🟠',expert:'🔴',insane:'💀'};
+        
+        const activeQuests=sortQuests(tasks.filter(t=>(t.type==="quest"||t.type==="priority")&&!t.isCompleted&&!t.isFailed));
+        const visibleQuests=activeQuests.slice(0,MAX_VISIBLE_QUESTS);
+        const totalActive=activeQuests.length;
+        
+        document.getElementById("questCounter").innerHTML=totalActive>MAX_VISIBLE_QUESTS?`Показано ${MAX_VISIBLE_QUESTS} из ${totalActive}`:'';
+        document.getElementById("questsList").innerHTML=visibleQuests.length===0?"<div class='empty-text'>Нет активных квестов</div>":visibleQuests.map(t=>{const c=categories.find(x=>x.id===t.categoryId);const dl=t.deadlineCategory==='nolimit'?'♾️':(t.deadline?new Date(t.deadline).toLocaleDateString():"—");return`<div class="task-card"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${c?.emoji||"📁"} ${c?.name||"?"}</span><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span>📅 ${dl}</span></div></div><button class="complete-btn" data-id="${t.id}">✅</button></div>`;}).join("");
+        
+        const ts=new Date().toDateString();
+        const dailies=sortQuests(tasks.filter(t=>t.type==="daily"&&t.dailyDate===ts));
+        document.getElementById("dailyTasksList").innerHTML=dailies.length===0?"<div class='empty-text'>Нет активных дейликов</div>":dailies.map(t=>`<div class="task-card${t.isCompleted?' completed':''}"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span>🔥 ежедневно</span></div></div>${t.isCompleted?'<span style="color:#4a7c3f;font-weight:bold;z-index:2;position:relative;">✓</span>':'<button class="complete-btn" data-id="'+t.id+'">✅</button>'}</div>`).join("");
+        
+        document.getElementById("categoriesGrid").innerHTML=categories.map(c=>{const cl=getLevelFromXP(c.xp),xcl=getXPInCurrentLevel(c.xp),xcn=getXPForLevel(cl),cp=Math.min(100,(xcl/xcn)*100),xr=Math.max(0,xcn-xcl),cr=getCategoryRank(c.type,cl);return`<div class="category-card" data-category-id="${c.id}"><div class="category-card-header"><div class="category-card-emoji">${c.emoji||"📁"}</div><div class="category-card-info"><div class="category-card-name">${esc(c.name)}</div><div class="category-card-rank">${cr}</div></div></div><div class="category-card-progress"><div class="category-card-progress-header"><span>Ур. ${cl}</span><span>${xr} XP</span></div><div class="category-card-progress-bar"><div class="category-card-progress-fill" style="width:${cp}%;"></div></div></div></div>`;}).join("");
+        document.querySelectorAll(".category-card").forEach(c=>{c.addEventListener("click",()=>showCategoryDetail(c.getAttribute("data-category-id")));});
+        
+        if(selectedCategoryId){const c=categories.find(x=>x.id===selectedCategoryId);if(c){const cl=getLevelFromXP(c.xp),xcl=getXPInCurrentLevel(c.xp),xcn=getXPForLevel(cl),cp=Math.min(100,(xcl/xcn)*100),cr=getCategoryRank(c.type,cl);
+        document.getElementById("categoryDetailHeader").innerHTML=`<button class="delete-category-btn" id="deleteCategoryBtn">✕</button><div class="category-detail-top"><div class="category-detail-emoji">${c.emoji||"📁"}</div><div class="category-detail-info"><h2>${esc(c.name)}</h2><div class="category-detail-rank-row"><p>Ур. ${cl} · ${cr}</p><button class="rank-info-btn" id="detailRankInfoBtn">i</button></div></div></div><div class="category-detail-progress"><div class="category-detail-progress-header"><span>До следующего уровня</span><span>${xcl} / ${xcn} XP</span></div><div class="category-detail-progress-bar"><div class="category-detail-progress-fill" style="width:${cp}%;"></div></div></div>`;
+        setTimeout(()=>{const db=document.getElementById('deleteCategoryBtn');if(db)db.addEventListener('click',e=>{e.stopPropagation();confirmDeleteCategory(selectedCategoryId);});const dr=document.getElementById('detailRankInfoBtn');if(dr)dr.addEventListener('click',e=>{e.stopPropagation();showRanksInfo(selectedCategoryId);});},0);
+        const cts=sortQuests(tasks.filter(t=>t.categoryId===selectedCategoryId&&!t.isFailed));
+        document.getElementById("categoryTasksList").innerHTML=cts.length===0?"<div class='empty-text'>Нет задач в этой категории</div>":cts.map(t=>{const dl=t.type==="daily"?'🔥':(t.deadlineCategory==='nolimit'?'♾️':(t.deadline?new Date(t.deadline).toLocaleDateString():"—"));return`<div class="task-card${t.isCompleted?' completed':''}"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span>${dl}</span></div></div>${t.isCompleted?'<span style="color:#4a7c3f;font-weight:bold;z-index:2;position:relative;">✓</span>':'<button class="complete-btn" data-id="'+t.id+'">✅</button>'}</div>`;}).join("");}}
+        
+        document.getElementById("profileHeaderCard").innerHTML=`<div class="profile-avatar-row"><div class="profile-avatar-large">😎</div><div class="profile-name-info"><h2>Folietine</h2><div class="profile-rank-row"><span class="rank-badge">Ур. ${gLvl} · ${domRank}</span><span class="archetype-badge">${arch.emoji} ${arch.name}</span><button class="rank-info-btn" id="profileRankInfoBtn">i</button></div></div></div><div class="profile-global-progress"><div class="profile-global-progress-header"><span>До следующего уровня</span><span>${xpInL} / ${xpForN} XP</span></div><div class="profile-global-progress-bar"><div class="profile-global-progress-fill" style="width:${pp}%;"></div></div></div>`;
+        setTimeout(()=>{const pr=document.getElementById('profileRankInfoBtn');if(pr)pr.addEventListener('click',e=>{e.stopPropagation();showRanksInfo();});},0);
+        
+        document.getElementById("profileStats").innerHTML=`
+            <div class="stat-row"><span class="stat-label">✅ Выполнено задач</span><span class="stat-value">${getCompletedTasksCount()}</span></div>
+            <div class="stat-row"><span class="stat-label">❌ Провалено задач</span><span class="stat-value">${getFailedTasksCount()}</span></div>
+            <div class="stat-row"><span class="stat-label">📈 Получено XP</span><span class="stat-value">${getTotalXPEarned()}</span></div>
+            <div class="stat-row"><span class="stat-label">💔 Потеряно XP</span><span class="stat-value">${getTotalXPLost()}</span></div>
+            <div class="stat-row"><span class="stat-label">🏆 Доминанта</span><span class="stat-value">${getBestCategory()}</span></div>
+        `;
+        
+        const titles=getSpecialTitles();let aHTML='';
+        if(getCompletedTasksCount()>=1)aHTML+='<div class="achievement-item">🏅 Первый шаг — выполнена 1 задача</div>';
+        if(getCompletedTasksCount()>=50)aHTML+='<div class="achievement-item">🏅 Трудяга — выполнено 50 задач</div>';
+        titles.forEach(t=>{aHTML+=`<div class="achievement-item">${t.emoji} ${t.name}</div>`;});
+        if(aHTML){document.getElementById("achievementsList").style.display="block";document.getElementById("achievementsList").innerHTML=aHTML;}
+        else{document.getElementById("achievementsList").style.display="none";}
+        
+        document.querySelectorAll(".complete-btn").forEach(b=>{b.addEventListener("click",function(){completeTask(this.getAttribute("data-id"));});});
+    }
+    
+    function esc(s){if(!s)return'';return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);}
+    
+    function init(){
+        loadData();syncDaily();checkOverdue();renderUI();
+        document.getElementById("closeModalBtn").onclick=()=>document.getElementById('taskModal').style.display="none";
+        document.getElementById("saveTaskBtn").onclick=()=>{const ti=document.getElementById("taskTitle").value,ci=document.getElementById("taskCategory").value,diff=document.getElementById("taskDifficulty").value,ty=document.getElementById("taskType").value,dl=document.getElementById("taskDeadlineSelect").value;if(!ti){alert("Введите название");return;}const isDaily=ty==='daily';const xp=calcXP(diff,ci,dl,isDaily);addTask(ti,ci,xp,ty,diff,isDaily?null:dl);document.getElementById('taskModal').style.display="none";document.getElementById("taskTitle").value='';syncDaily();checkOverdue();renderUI();};
+        document.getElementById("addCategoryBtn").onclick=()=>{document.getElementById("newCategoryName").value="";document.getElementById("newCategoryEmoji").value="📁";document.getElementById('categoryModal').style.display="flex";};
+        document.getElementById("closeCategoryModalBtn").onclick=()=>document.getElementById('categoryModal').style.display="none";
+        document.getElementById("saveCategoryBtn").onclick=()=>{const n=document.getElementById("newCategoryName").value,em=document.getElementById("newCategoryEmoji").value;if(!n){alert("Введите название категории");return;}addCategory(n,em,'custom');document.getElementById('categoryModal').style.display="none";document.getElementById("newCategoryName").value='';document.getElementById("newCategoryEmoji").value="📁";renderUI();};
+    }
+    
+    init();setInterval(()=>{checkOverdue();renderUI();},60000);
+    </script>
+</body>
+  </html>
