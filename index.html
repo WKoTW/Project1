@@ -12,9 +12,9 @@
     <meta name="description" content="Folietine — RPG продуктивность. Жизненные квесты.">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2321421e'/><text x='50' y='65' font-size='55' text-anchor='middle' fill='white'>📜</text></svg>">
     
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -36,6 +36,7 @@
             align-items: center; height: 100%; padding: 120px 20px 30px; text-align: center;
         }
         .app-title { font-size: 2.2rem; font-weight: 700; color: #f2e8c9; margin: 0; letter-spacing: 1px; }
+        .app-subtitle { font-size: 0.9rem; color: #7e8f68; margin-top: 8px; }
         .login-middle { display: flex; flex-direction: column; align-items: center; gap: 16px; }
         .login-btn {
             width: 100px; height: 100px; background: #f2e8c9; border-radius: 50%;
@@ -48,14 +49,30 @@
             border-color: transparent transparent transparent #21421e; margin-left: 8px;
         }
         .login-text { font-size: 1.1rem; color: #f2e8c9; font-weight: 500; }
-        .version { font-size: 0.8rem; color: #7e8f68; margin-bottom: 10px; }
-        .sync-status {
-            font-size: 0.7rem; color: #7e8f68; margin-top: 8px;
-            display: flex; align-items: center; gap: 4px; justify-content: center;
+        .login-divider { color: #7e8f68; font-size: 0.8rem; margin: 12px 0; }
+        .google-btn {
+            display: flex; align-items: center; gap: 10px;
+            background: white; color: #333; border: none;
+            padding: 12px 24px; border-radius: 30px;
+            font-weight: 600; font-size: 0.9rem; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
         }
+        .google-btn:active { transform: scale(0.96); }
+        .google-btn img { width: 20px; height: 20px; }
+        .version { font-size: 0.8rem; color: #7e8f68; margin-bottom: 10px; }
+        .sync-status { font-size: 0.7rem; color: #7e8f68; margin-top: 8px; display: flex; align-items: center; gap: 4px; justify-content: center; }
         .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #7e8f68; }
         .sync-dot.online { background: #4a7c3f; }
         .sync-dot.offline { background: #e74c3c; }
+        .user-menu-btn {
+            position: absolute; top: 8px; right: 8px; width: 36px; height: 36px;
+            border-radius: 50%; cursor: pointer; z-index: 62;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; border: 2px solid #d4c4a4;
+            overflow: hidden; background: #fffdf7;
+        }
+        .user-menu-btn img { width: 100%; height: 100%; object-fit: cover; }
         
         .main-screen { width: 100%; max-width: 600px; margin: 0 auto; position: relative; }
         .main-screen.hidden { display: none; }
@@ -105,7 +122,8 @@
         }
         
         .profile-row { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; background: #e2d4b6; padding: 12px 16px; border-radius: 48px; }
-        .avatar { font-size: 52px; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .avatar { font-size: 52px; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .level-info h2 { margin: 0; font-size: 1.3rem; color: #21421e; }
         .level-info p { margin: 4px 0 0; color: #4a5b3c; font-weight: 500; }
         .archetype-badge { background: #6b3a8a; color: #f2e8c9; padding: 4px 12px; border-radius: 40px; font-size: 0.75rem; font-weight: 600; display: inline-block; margin-top: 4px; }
@@ -184,7 +202,8 @@
         
         .profile-header-card { background: #e2d4b6; border-radius: 24px; padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 16px; }
         .profile-avatar-row { display: flex; align-items: center; gap: 16px; }
-        .profile-avatar-large { font-size: 64px; background: #fffdf7; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .profile-avatar-large { font-size: 64px; background: #fffdf7; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
         .profile-name-info h2 { margin: 0; font-size: 1.3rem; color: #21421e; }
         .profile-rank-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
         .profile-global-progress { background: #fffdf7; border-radius: 16px; padding: 12px; }
@@ -217,12 +236,7 @@
         .add-task-fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #4a7c3f; color: #f2e8c9; border: none; border-radius: 50%; font-size: 32px; font-weight: bold; cursor: pointer; box-shadow: 0 6px 16px rgba(0,0,0,0.25); z-index: 20; display: flex; align-items: center; justify-content: center; }
         .add-task-fab:active { transform: scale(0.9); }
         
-        .pwa-install-banner {
-            display: none; position: fixed; bottom: 100px; left: 20px; right: 20px;
-            background: #e2d4b6; border-radius: 16px; padding: 16px;
-            z-index: 200; text-align: center;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3); border: 2px solid #4a7c3f;
-        }
+        .pwa-install-banner { display: none; position: fixed; bottom: 100px; left: 20px; right: 20px; background: #e2d4b6; border-radius: 16px; padding: 16px; z-index: 200; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.3); border: 2px solid #4a7c3f; }
         .pwa-install-banner.show { display: block; }
         .pwa-install-banner p { margin: 0 0 10px; font-weight: 600; color: #21421e; }
         .pwa-install-btn { background: #4a7c3f; color: white; border: none; padding: 10px 24px; border-radius: 24px; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
@@ -232,8 +246,16 @@
     <div class="login-screen" id="loginScreen">
         <div class="login-container">
             <div class="app-title">Folietine</div>
-            <div class="login-middle"><div class="login-btn" id="loginBtn"><div class="play-triangle"></div></div><div class="login-text">Войти в систему</div></div>
-            <div class="version">v2.0 ☁️</div>
+            <div class="app-subtitle">RPG продуктивность</div>
+            <div class="login-middle">
+                <div class="login-btn" id="loginBtn"><div class="play-triangle"></div></div>
+                <div class="login-text">Гостевой режим</div>
+                <div class="login-divider">— или —</div>
+                <button class="google-btn" id="googleLoginBtn">
+                    <span style="font-size:1.2rem;">G</span> Войти через Google
+                </button>
+            </div>
+            <div class="version">v3.0 🔐</div>
             <div class="sync-status" id="syncStatus"><span class="sync-dot" id="syncDot"></span> <span id="syncText">Ожидание...</span></div>
         </div>
     </div>
@@ -241,6 +263,7 @@
     <div class="main-screen hidden" id="mainScreen">
         <div class="menu-button" id="menuButton">☰</div>
         <div class="back-button" id="backButton">←</div>
+        <div class="user-menu-btn" id="userMenuBtn" title="Профиль">😎</div>
         <div class="menu-overlay" id="menuOverlay"></div>
         <div class="sections-dropdown" id="sectionsDropdown">
             <div class="dropdown-section-card active" data-section="main">🏠</div>
@@ -270,120 +293,140 @@
     <div class="pwa-install-banner" id="pwaInstallBanner"><p>📜 Установи Folietine на телефон!</p><button class="pwa-install-btn" id="pwaInstallBtn">Установить</button></div>
     
     <script>
-    // ========== FIREBASE INIT ==========
-    const firebaseConfig = {
+    // ========== FIREBASE ==========
+    firebase.initializeApp({
         apiKey: "AIzaSyCmGM8pOK3f33q6egwF_TfPv4KB1DYeAn0",
         authDomain: "folietine1.firebaseapp.com",
         projectId: "folietine1",
         storageBucket: "folietine1.firebasestorage.app",
         messagingSenderId: "922224179567",
         appId: "1:922224179567:web:04b504cd5db60ce84cd09a"
-    };
-    
-    firebase.initializeApp(firebaseConfig);
+    });
     const db = firebase.firestore();
-    db.enablePersistence().catch(err => console.log('Offline persistence error:', err));
+    const auth = firebase.auth();
+    db.enablePersistence().catch(() => {});
     
-    // ========== USER ID ==========
     let userId = localStorage.getItem('folietine_user_id');
-    if (!userId) {
-        userId = 'user_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-        localStorage.setItem('folietine_user_id', userId);
-    }
+    if (!userId) { userId = 'user_' + Date.now().toString(36) + Math.random().toString(36).substr(2,5); localStorage.setItem('folietine_user_id', userId); }
     
-    // ========== SYNC STATUS ==========
+    let currentUser = null;
+    let isGuest = true;
+    
     const syncDot = document.getElementById('syncDot');
     const syncText = document.getElementById('syncText');
-    
     function updateSyncStatus(online) {
-        if (online) {
-            syncDot.className = 'sync-dot online';
-            syncText.textContent = 'Облако подключено';
-        } else {
-            syncDot.className = 'sync-dot offline';
-            syncText.textContent = 'Оффлайн';
-        }
+        syncDot.className = 'sync-dot ' + (online ? 'online' : 'offline');
+        syncText.textContent = online ? (isGuest ? 'Гость · Облако' : 'Облако подключено') : 'Оффлайн';
     }
-    
     window.addEventListener('online', () => { updateSyncStatus(true); syncToCloud(); });
     window.addEventListener('offline', () => updateSyncStatus(false));
     updateSyncStatus(navigator.onLine);
     
-    // ========== CLOUD SYNC ==========
     async function syncToCloud() {
         if (!navigator.onLine) return;
+        const uid = isGuest ? userId : currentUser.uid;
         try {
-            await db.collection('users').doc(userId).set({
-                categories: categories,
-                tasks: tasks,
-                dailyTemplates: dailyTemplates,
-                updatedAt: new Date().toISOString()
+            await db.collection('users').doc(uid).set({
+                categories, tasks, dailyTemplates,
+                updatedAt: new Date().toISOString(),
+                isGuest, displayName: currentUser?.displayName || 'Гость',
+                photoURL: currentUser?.photoURL || null
             }, { merge: true });
             updateSyncStatus(true);
-        } catch (e) {
-            console.log('Sync error:', e);
-            updateSyncStatus(false);
-        }
+        } catch(e) { updateSyncStatus(false); }
     }
     
-    async function loadFromCloud() {
-        if (!navigator.onLine) {
-            updateSyncStatus(false);
-            return false;
-        }
+    async function loadFromCloud(uid) {
+        if (!navigator.onLine) { updateSyncStatus(false); return false; }
         try {
-            const doc = await db.collection('users').doc(userId).get();
+            const doc = await db.collection('users').doc(uid).get();
             if (doc.exists) {
-                const data = doc.data();
-                if (data.categories) categories = data.categories;
-                if (data.tasks) tasks = data.tasks.map(t => {
-                    if (t.isFailed === undefined) t.isFailed = false;
-                    if (t.isCompleted === undefined) t.isCompleted = false;
-                    if (t.difficulty === undefined) t.difficulty = 'medium';
-                    if (t.xpReward === undefined) t.xpReward = 10;
-                    if (t.type === 'priority') t.type = 'quest';
-                    if (!t.deadlineCategory) t.deadlineCategory = '4-7';
-                    return t;
-                });
-                if (data.dailyTemplates) dailyTemplates = data.dailyTemplates;
-                updateSyncStatus(true);
-                return true;
+                const d = doc.data();
+                if (d.categories) categories = d.categories;
+                if (d.tasks) tasks = d.tasks.map(t => { t.isFailed??=false; t.isCompleted??=false; t.difficulty??='medium'; t.xpReward??=10; if(t.type==='priority')t.type='quest'; t.deadlineCategory??='4-7'; return t; });
+                if (d.dailyTemplates) dailyTemplates = d.dailyTemplates;
+                updateSyncStatus(true); return true;
+            }
+            updateSyncStatus(true); return false;
+        } catch(e) { updateSyncStatus(false); return false; }
+    }
+    
+    // ========== AUTH ==========
+    document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        try {
+            const result = await auth.signInWithPopup(provider);
+            currentUser = result.user;
+            isGuest = false;
+            userId = currentUser.uid;
+            localStorage.setItem('folietine_user_id', userId);
+            
+            const fromCloud = await loadFromCloud(userId);
+            if (!fromCloud) {
+                categories = getDefaultCats(); tasks = []; dailyTemplates = [];
+                saveAll();
             }
             updateSyncStatus(true);
-            return false;
-        } catch (e) {
-            console.log('Load error:', e);
-            updateSyncStatus(false);
-            return false;
+            showMainScreenFn();
+        } catch(e) {
+            console.log('Auth error:', e);
+            alert('Не удалось войти через Google. Попробуйте гостевой режим.');
+        }
+    });
+    
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+        isGuest = true; currentUser = null;
+        userId = localStorage.getItem('folietine_user_id');
+        const fromCloud = await loadFromCloud(userId);
+        if (!fromCloud) {
+            if (!localStorage.getItem("folietine_v3")) {
+                localStorage.setItem("folietine_v3","1");
+                categories=getDefaultCats(); tasks=[]; dailyTemplates=[];
+                saveAll();
+            }
+        }
+        updateSyncStatus(navigator.onLine);
+        showMainScreenFn();
+    });
+    
+    document.getElementById('userMenuBtn').addEventListener('click', () => switchSection('profile'));
+    
+    function showMainScreenFn() {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('mainScreen').classList.remove('hidden');
+        updateUserUI();
+        renderUI();
+    }
+    
+    function updateUserUI() {
+        const avEl = document.getElementById('avatarEmoji');
+        const profAv = document.getElementById('profile-avatar-placeholder');
+        const userBtn = document.getElementById('userMenuBtn');
+        
+        if (currentUser && currentUser.photoURL) {
+            avEl.innerHTML = `<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            userBtn.innerHTML = `<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;">`;
+        } else {
+            avEl.innerHTML = '😎';
+            userBtn.innerHTML = '😎';
         }
     }
     
     // ========== PWA ==========
     if ('serviceWorker' in navigator) {
-        const swCode = `self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));`;
-        const swBlob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+        navigator.serviceWorker.register(URL.createObjectURL(new Blob(['self.addEventListener("fetch",e=>e.respondWith(fetch(e.request).catch(()=>caches.match(e.request))))'],{type:'application/javascript'}))).catch(()=>{});
     }
-    
-    const manifest = {
-        name: 'Folietine', short_name: 'Folietine', description: 'RPG продуктивность',
-        start_url: location.href, display: 'standalone', background_color: '#21421e',
-        theme_color: '#21421e', orientation: 'portrait',
-        icons: [{ src: "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#21421e"/><text x="256" y="340" font-size="280" text-anchor="middle" fill="white">📜</text></svg>'), sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' }]
-    };
-    const linkEl = document.createElement('link'); linkEl.rel = 'manifest';
-    linkEl.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
-    document.head.appendChild(linkEl);
+    const manifest = { name:'Folietine',short_name:'Folietine',start_url:location.href,display:'standalone',background_color:'#21421e',theme_color:'#21421e',orientation:'portrait',icons:[{src:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#21421e"/><text x="256" y="340" font-size="280" text-anchor="middle" fill="white">📜</text></svg>'),sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]};
+    document.head.appendChild(Object.assign(document.createElement('link'),{rel:'manifest',href:URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/json'}))}));
     
     let deferredPrompt;
     const installBanner = document.getElementById('pwaInstallBanner');
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; setTimeout(() => installBanner.classList.add('show'), 3000); });
-    document.getElementById('pwaInstallBtn').addEventListener('click', () => { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { installBanner.classList.remove('show'); deferredPrompt = null; }); } });
-    window.addEventListener('appinstalled', () => installBanner.classList.remove('show'));
+    window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;setTimeout(()=>installBanner.classList.add('show'),3000);});
+    document.getElementById('pwaInstallBtn').addEventListener('click',()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{installBanner.classList.remove('show');deferredPrompt=null;});}});
+    window.addEventListener('appinstalled',()=>installBanner.classList.remove('show'));
     
     // ========== GAME CODE ==========
     const MAX_VISIBLE_QUESTS = 3;
-    
     function getXPForLevel(l){if(l<=10)return 100;if(l<=20)return 200;if(l<=30)return 400;if(l<=40)return 700;if(l<=50)return 1100;if(l<=60)return 1600;if(l<=70)return 2200;if(l<=80)return 3000;if(l<=90)return 4000;return 5500;}
     function getLevelFromXP(t){let x=t,l=1;while(x>=getXPForLevel(l)){x-=getXPForLevel(l);l++;if(l>100)break;}return Math.min(l,100);}
     function getXPInCurrentLevel(t){let x=t,l=1;while(x>=getXPForLevel(l)){x-=getXPForLevel(l);l++;if(l>100)return 0;}return x;}
@@ -425,23 +468,6 @@
     
     let currentSection='main',selectedCategoryId=null,categoryToDelete=null;
     
-    document.getElementById('loginBtn').addEventListener('click', async () => {
-        loginScreen.classList.add('hidden'); mainScreen.classList.remove('hidden');
-        
-        const fromCloud = await loadFromCloud();
-        if (!fromCloud) {
-            if (!localStorage.getItem("folietine_v2")) {
-                localStorage.setItem("folietine_v2", "1");
-                categories = getDefaultCats();
-                tasks = [];
-                dailyTemplates = [];
-                saveLocal();
-                syncToCloud();
-            }
-        }
-        renderUI();
-    });
-    
     const menuBtn=document.getElementById('menuButton'),sectDrop=document.getElementById('sectionsDropdown'),menuOvl=document.getElementById('menuOverlay'),backBtn=document.getElementById('backButton');
     function openDr(){sectDrop.classList.add('open');menuOvl.classList.add('open');menuBtn.classList.add('square');}
     function closeDr(){sectDrop.classList.remove('open');menuOvl.classList.remove('open');menuBtn.classList.remove('square');}
@@ -478,19 +504,19 @@
     function saveLocal(){localStorage.setItem("kvest_categories",JSON.stringify(categories));localStorage.setItem("kvest_tasks",JSON.stringify(tasks));localStorage.setItem("kvest_templates",JSON.stringify(dailyTemplates));}
     function loadLocal(){
         const sc=localStorage.getItem("kvest_categories"),st=localStorage.getItem("kvest_tasks"),sp=localStorage.getItem("kvest_templates");
-        if(sc)categories=JSON.parse(sc).map(c=>{if(!c.type){if(c.name.includes("Саморазвитие")||c.name.includes("Обучение"))c.type="study";else if(c.name.includes("Здоровье"))c.type="health";else if(c.name.includes("Будущее")||c.name.includes("Работа"))c.type="future";else if(c.name.includes("Самореализация"))c.type="selfreal";else c.type="custom";}return c;});
-        if(st)tasks=JSON.parse(st).map(t=>{if(t.isFailed===undefined)t.isFailed=false;if(t.isCompleted===undefined)t.isCompleted=false;if(t.difficulty===undefined)t.difficulty='medium';if(t.xpReward===undefined)t.xpReward=10;if(t.type==='priority')t.type='quest';if(!t.deadlineCategory)t.deadlineCategory='4-7';return t;});
+        if(sc)categories=JSON.parse(sc).map(c=>{if(!c.type){if(c.name.includes("Саморазвитие"))c.type="study";else if(c.name.includes("Здоровье"))c.type="health";else if(c.name.includes("Будущее"))c.type="future";else if(c.name.includes("Самореализация"))c.type="selfreal";else c.type="custom";}return c;});
+        if(st)tasks=JSON.parse(st).map(t=>{t.isFailed??=false;t.isCompleted??=false;t.difficulty??='medium';t.xpReward??=10;if(t.type==='priority')t.type='quest';t.deadlineCategory??='4-7';return t;});
         if(sp)dailyTemplates=JSON.parse(sp);
     }
+    
+    function saveAll(){saveLocal();syncToCloud();}
     
     function applyPenalty(t){if(t.isCompleted||t.isFailed)return false;const c=categories.find(x=>x.id===t.categoryId);if(!c)return false;c.xp=Math.max(0,c.xp-Math.floor((t.xpReward||10)*0.75));t.isFailed=true;saveAll();return true;}
     function completeTask(id){const t=tasks.find(x=>String(x.id)===String(id));if(!t||t.isCompleted||t.isFailed)return false;const c=categories.find(x=>x.id===t.categoryId);if(c&&t.xpReward)c.xp+=t.xpReward;t.isCompleted=true;saveAll();renderUI();return true;}
     
-    function saveAll(){saveLocal();syncToCloud();}
-    
     function syncDaily(){const ts=new Date().toDateString();const todayTasks=tasks.filter(t=>t.type==="daily"&&t.dailyDate===ts);const completedToday=todayTasks.filter(t=>t.isCompleted);tasks=tasks.filter(t=>!(t.type==="daily"&&t.dailyDate!==ts&&(t.isCompleted||t.isFailed)));for(let tp of dailyTemplates){if(!tasks.some(t=>t.type==="daily"&&t.dailyDate===ts&&t.title===tp.title)&&!completedToday.some(t=>t.title===tp.title)){tasks.push({id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),title:tp.title,categoryId:tp.categoryId||'global',xpReward:tp.xpReward||10,type:"daily",difficulty:tp.difficulty||'medium',isCompleted:false,isFailed:false,dailyDate:ts,createdAt:new Date().toISOString()});}}saveAll();}
     
-    function checkOverdue(){const n=new Date();let ch=false;for(let t of tasks){if((t.type==="quest"||t.type==="priority")&&!t.isCompleted&&!t.isFailed&&t.deadline&&new Date(t.deadline)<n&&t.deadlineCategory!=='nolimit'){if(applyPenalty(t))ch=true;}}const ts=new Date().toDateString();for(let t of tasks.filter(x=>x.type==="daily"&&!x.isCompleted&&!x.isFailed&&x.dailyDate!==ts)){if(applyPenalty(t))ch=true;}if(ch){saveAll();renderUI();}}
+    function checkOverdue(){const n=new Date();let ch=false;for(let t of tasks){if((t.type==="quest")&&!t.isCompleted&&!t.isFailed&&t.deadline&&new Date(t.deadline)<n&&t.deadlineCategory!=='nolimit'){if(applyPenalty(t))ch=true;}}const ts=new Date().toDateString();for(let t of tasks.filter(x=>x.type==="daily"&&!x.isCompleted&&!x.isFailed&&x.dailyDate!==ts)){if(applyPenalty(t))ch=true;}if(ch){saveAll();renderUI();}}
     
     function addTask(ti,ci,xp,ty,diff,dl=null){if(!ti||!ti.trim())return false;const nt={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),title:ti.trim(),categoryId:ci,xpReward:parseInt(xp)||10,type:ty==='daily'?'daily':'quest',difficulty:diff||'medium',isCompleted:false,isFailed:false,createdAt:new Date().toISOString(),deadlineCategory:dl||'4-7'};
     if(nt.type==="quest"){if(dl==='nolimit'){nt.deadline=null;nt.deadlineCategory='nolimit';}else{const dm={1:1,'2-3':2,'4-7':5,'8-14':10,'15-30':21,'31-90':60,'91-180':135,'181-365':270};const d=new Date();d.setDate(d.getDate()+(dm[dl]||5));d.setHours(23,59,59);nt.deadline=d.toISOString();nt.deadlineCategory=dl;}}else{nt.dailyDate=new Date().toDateString();if(!dailyTemplates.some(dt=>dt.title===ti.trim())){dailyTemplates.push({id:nt.id,title:ti.trim(),categoryId:ci||'global',xpReward:parseInt(xp)||10,difficulty:diff||'medium'});}}
@@ -544,16 +570,14 @@
         
         const dE={easy:'🟢',medium:'🟡',hard:'🟠',expert:'🔴',insane:'💀'};
         
-        const activeQuests=sortQuests(tasks.filter(t=>(t.type==="quest"||t.type==="priority")&&!t.isCompleted&&!t.isFailed));
+        const activeQuests=sortQuests(tasks.filter(t=>t.type==="quest"&&!t.isCompleted&&!t.isFailed));
         const visibleQuests=activeQuests.slice(0,MAX_VISIBLE_QUESTS);
-        const totalActive=activeQuests.length;
-        
-        document.getElementById("questCounter").innerHTML=totalActive>MAX_VISIBLE_QUESTS?`Показано ${MAX_VISIBLE_QUESTS} из ${totalActive}`:'';
+        document.getElementById("questCounter").innerHTML=activeQuests.length>MAX_VISIBLE_QUESTS?`Показано ${MAX_VISIBLE_QUESTS} из ${activeQuests.length}`:'';
         document.getElementById("questsList").innerHTML=visibleQuests.length===0?"<div class='empty-text'>Нет активных квестов</div>":visibleQuests.map(t=>{const c=categories.find(x=>x.id===t.categoryId);const dl=t.deadlineCategory==='nolimit'?'♾️':(t.deadline?new Date(t.deadline).toLocaleDateString():"—");return`<div class="task-card"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${c?.emoji||"📁"} ${c?.name||"?"}</span><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span>📅 ${dl}</span></div></div><button class="complete-btn" data-id="${t.id}">✅</button></div>`;}).join("");
         
         const ts=new Date().toDateString();
         const dailies=sortQuests(tasks.filter(t=>t.type==="daily"&&t.dailyDate===ts));
-        document.getElementById("dailyTasksList").innerHTML=dailies.length===0?"<div class='empty-text'>Нет активных дейликов</div>":dailies.map(t=>`<div class="task-card${t.isCompleted?' completed':''}"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span>🔥 ежедневно</span></div></div>${t.isCompleted?'<span style="color:#4a7c3f;font-weight:bold;z-index:2;position:relative;">✓</span>':'<button class="complete-btn" data-id="'+t.id+'">✅</button>'}</div>`).join("");
+        document.getElementById("dailyTasksList").innerHTML=dailies.length===0?"<div class='empty-text'>Нет активных дейликов</div>":dailies.map(t=>`<div class="task-card${t.isCompleted?' completed':''}"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span>🔥 ежедневно</span></div></div>${t.isCompleted?'<span style="color:#4a7c3f;font-weight:bold;z-index:2;">✓</span>':'<button class="complete-btn" data-id="'+t.id+'">✅</button>'}</div>`).join("");
         
         document.getElementById("categoriesGrid").innerHTML=categories.map(c=>{const cl=getLevelFromXP(c.xp),xcl=getXPInCurrentLevel(c.xp),xcn=getXPForLevel(cl),cp=Math.min(100,(xcl/xcn)*100),xr=Math.max(0,xcn-xcl),cr=getCategoryRank(c.type,cl);return`<div class="category-card" data-category-id="${c.id}"><div class="category-card-header"><div class="category-card-emoji">${c.emoji||"📁"}</div><div class="category-card-info"><div class="category-card-name">${esc(c.name)}</div><div class="category-card-rank">${cr}</div></div></div><div class="category-card-progress"><div class="category-card-progress-header"><span>Ур. ${cl}</span><span>${xr} XP</span></div><div class="category-card-progress-bar"><div class="category-card-progress-fill" style="width:${cp}%;"></div></div></div></div>`;}).join("");
         document.querySelectorAll(".category-card").forEach(c=>{c.addEventListener("click",()=>showCategoryDetail(c.getAttribute("data-category-id")));});
@@ -562,9 +586,10 @@
         document.getElementById("categoryDetailHeader").innerHTML=`<button class="delete-category-btn" id="deleteCategoryBtn">✕</button><div class="category-detail-top"><div class="category-detail-emoji">${c.emoji||"📁"}</div><div class="category-detail-info"><h2>${esc(c.name)}</h2><div class="category-detail-rank-row"><p>Ур. ${cl} · ${cr}</p><button class="rank-info-btn" id="detailRankInfoBtn">i</button></div></div></div><div class="category-detail-progress"><div class="category-detail-progress-header"><span>До следующего уровня</span><span>${xcl} / ${xcn} XP</span></div><div class="category-detail-progress-bar"><div class="category-detail-progress-fill" style="width:${cp}%;"></div></div></div>`;
         setTimeout(()=>{const db=document.getElementById('deleteCategoryBtn');if(db)db.addEventListener('click',e=>{e.stopPropagation();confirmDeleteCategory(selectedCategoryId);});const dr=document.getElementById('detailRankInfoBtn');if(dr)dr.addEventListener('click',e=>{e.stopPropagation();showRanksInfo(selectedCategoryId);});},0);
         const cts=sortQuests(tasks.filter(t=>t.categoryId===selectedCategoryId&&!t.isFailed));
-        document.getElementById("categoryTasksList").innerHTML=cts.length===0?"<div class='empty-text'>Нет задач в этой категории</div>":cts.map(t=>{const dl=t.type==="daily"?'🔥':(t.deadlineCategory==='nolimit'?'♾️':(t.deadline?new Date(t.deadline).toLocaleDateString():"—"));return`<div class="task-card${t.isCompleted?' completed':''}"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span>${dl}</span></div></div>${t.isCompleted?'<span style="color:#4a7c3f;font-weight:bold;z-index:2;position:relative;">✓</span>':'<button class="complete-btn" data-id="'+t.id+'">✅</button>'}</div>`;}).join("");}}
+        document.getElementById("categoryTasksList").innerHTML=cts.length===0?"<div class='empty-text'>Нет задач в этой категории</div>":cts.map(t=>{const dl=t.type==="daily"?'🔥':(t.deadlineCategory==='nolimit'?'♾️':(t.deadline?new Date(t.deadline).toLocaleDateString():"—"));return`<div class="task-card${t.isCompleted?' completed':''}"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span>${dl}</span></div></div>${t.isCompleted?'<span style="color:#4a7c3f;font-weight:bold;z-index:2;">✓</span>':'<button class="complete-btn" data-id="'+t.id+'">✅</button>'}</div>`;}).join("");}}
         
-        document.getElementById("profileHeaderCard").innerHTML=`<div class="profile-avatar-row"><div class="profile-avatar-large">😎</div><div class="profile-name-info"><h2>Folietine</h2><div class="profile-rank-row"><span class="rank-badge">Ур. ${gLvl} · ${domRank}</span><span class="archetype-badge">${arch.emoji} ${arch.name}</span><button class="rank-info-btn" id="profileRankInfoBtn">i</button></div></div></div><div class="profile-global-progress"><div class="profile-global-progress-header"><span>До следующего уровня</span><span>${xpInL} / ${xpForN} XP</span></div><div class="profile-global-progress-bar"><div class="profile-global-progress-fill" style="width:${pp}%;"></div></div></div>`;
+        const displayName = currentUser?.displayName || 'Гость';
+        document.getElementById("profileHeaderCard").innerHTML=`<div class="profile-avatar-row"><div class="profile-avatar-large" id="profile-avatar-placeholder">${currentUser?.photoURL?`<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;">`:'😎'}</div><div class="profile-name-info"><h2>${esc(displayName)}</h2><div class="profile-rank-row"><span class="rank-badge">Ур. ${gLvl} · ${domRank}</span><span class="archetype-badge">${arch.emoji} ${arch.name}</span><button class="rank-info-btn" id="profileRankInfoBtn">i</button></div></div></div><div class="profile-global-progress"><div class="profile-global-progress-header"><span>До следующего уровня</span><span>${xpInL} / ${xpForN} XP</span></div><div class="profile-global-progress-bar"><div class="profile-global-progress-fill" style="width:${pp}%;"></div></div></div>`;
         setTimeout(()=>{const pr=document.getElementById('profileRankInfoBtn');if(pr)pr.addEventListener('click',e=>{e.stopPropagation();showRanksInfo();});},0);
         
         document.getElementById("profileStats").innerHTML=`
@@ -579,8 +604,8 @@
         if(getCompletedTasksCount()>=1)aHTML+='<div class="achievement-item">🏅 Первый шаг — выполнена 1 задача</div>';
         if(getCompletedTasksCount()>=50)aHTML+='<div class="achievement-item">🏅 Трудяга — выполнено 50 задач</div>';
         titles.forEach(t=>{aHTML+=`<div class="achievement-item">${t.emoji} ${t.name}</div>`;});
-        if(aHTML){document.getElementById("achievementsList").style.display="block";document.getElementById("achievementsList").innerHTML=aHTML;}
-        else{document.getElementById("achievementsList").style.display="none";}
+        document.getElementById("achievementsList").style.display=aHTML?'block':'none';
+        document.getElementById("achievementsList").innerHTML=aHTML;
         
         document.querySelectorAll(".complete-btn").forEach(b=>{b.addEventListener("click",function(){completeTask(this.getAttribute("data-id"));});});
     }
@@ -590,7 +615,7 @@
     function init(){
         loadLocal();syncDaily();checkOverdue();renderUI();
         document.getElementById("closeModalBtn").onclick=()=>document.getElementById('taskModal').style.display="none";
-        document.getElementById("saveTaskBtn").onclick=()=>{const ti=document.getElementById("taskTitle").value,ci=document.getElementById("taskCategory").value,diff=document.getElementById("taskDifficulty").value,ty=document.getElementById("taskType").value,dl=document.getElementById("taskDeadlineSelect").value;if(!ti){alert("Введите название");return;}const isDaily=ty==='daily';const xp=calcXP(diff,ci,dl,isDaily);addTask(ti,ci,xp,ty,diff,isDaily?null:dl);document.getElementById('taskModal').style.display="none";document.getElementById("taskTitle").value='';syncDaily();checkOverdue();renderUI();};
+        document.getElementById("saveTaskBtn").onclick=()=>{const ti=document.getElementById("taskTitle").value,ci=document.getElementById("taskCategory").value,diff=document.getElementById("taskDifficulty").value,ty=document.getElementById("taskType").value,dl=document.getElementById("taskDeadlineSelect").value;if(!ti){alert("Введите название");return;}const xp=calcXP(diff,ci,dl,ty==='daily');addTask(ti,ci,xp,ty,diff,ty==='quest'?dl:null);document.getElementById('taskModal').style.display="none";document.getElementById("taskTitle").value='';syncDaily();checkOverdue();renderUI();};
         document.getElementById("addCategoryBtn").onclick=()=>{document.getElementById("newCategoryName").value="";document.getElementById("newCategoryEmoji").value="📁";document.getElementById('categoryModal').style.display="flex";};
         document.getElementById("closeCategoryModalBtn").onclick=()=>document.getElementById('categoryModal').style.display="none";
         document.getElementById("saveCategoryBtn").onclick=()=>{const n=document.getElementById("newCategoryName").value,em=document.getElementById("newCategoryEmoji").value;if(!n){alert("Введите название категории");return;}addCategory(n,em,'custom');document.getElementById('categoryModal').style.display="none";document.getElementById("newCategoryName").value='';document.getElementById("newCategoryEmoji").value="📁";renderUI();};
