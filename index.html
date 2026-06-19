@@ -20,22 +20,19 @@
         .login-screen.hidden{opacity:0;visibility:hidden}
         .login-container{display:flex;flex-direction:column;justify-content:space-between;align-items:center;height:100%;padding:120px 20px 30px;text-align:center}
         .app-title{font-size:2.2rem;font-weight:700;color:#f2e8c9;margin:0;letter-spacing:1px}
-        .app-subtitle{font-size:.9rem;color:#7e8f68;margin-top:8px}
         .login-middle{display:flex;flex-direction:column;align-items:center;gap:16px}
         .login-btn{width:100px;height:100px;background:#f2e8c9;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .2s;box-shadow:0 8px 20px rgba(0,0,0,.2)}
         .login-btn:active{transform:scale(.96)}
         .play-triangle{width:0;height:0;border-style:solid;border-width:20px 0 20px 34px;border-color:transparent transparent transparent #21421e;margin-left:8px}
         .login-text{font-size:1.1rem;color:#f2e8c9;font-weight:500}
         .login-divider{color:#7e8f68;font-size:.8rem;margin:12px 0}
-        .google-btn{display:flex;align-items:center;gap:10px;background:#fff;color:#333;border:none;padding:12px 24px;border-radius:30px;font-weight:600;font-size:.9rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:transform .2s}
+        .google-btn{display:flex;align-items:center;gap:10px;background:#fff;color:#333;border:none;padding:12px 24px;border-radius:30px;font-weight:600;font-size:.9rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2)}
         .google-btn:active{transform:scale(.96)}
         .version{font-size:.8rem;color:#7e8f68;margin-bottom:10px}
         .sync-status{font-size:.7rem;color:#7e8f68;margin-top:8px;display:flex;align-items:center;gap:4px;justify-content:center}
         .sync-dot{width:6px;height:6px;border-radius:50%;background:#7e8f68}
         .sync-dot.online{background:#4a7c3f}
         .sync-dot.offline{background:#e74c3c}
-        .user-menu-btn{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;cursor:pointer;z-index:62;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid #d4c4a4;overflow:hidden;background:#fffdf7}
-        .user-menu-btn img{width:100%;height:100%;object-fit:cover}
         .main-screen{width:100%;max-width:600px;margin:0 auto;position:relative}
         .main-screen.hidden{display:none}
         .menu-button{position:absolute;top:0;left:4px;width:64px;height:48px;background:#e2d4b6;border-radius:0 0 12px 12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:24px;font-weight:700;box-shadow:2px 2px 8px rgba(0,0,0,.15);z-index:60;color:#21421e;border:1px solid #d4c4a4;border-top:none;transition:border-radius .25s ease}
@@ -52,7 +49,7 @@
         .menu-overlay.open{display:block}
         .app-container{background:#f2e8c9;border-radius:0 32px 32px 32px;box-shadow:0 12px 28px rgba(0,0,0,.25);overflow:hidden;padding:60px 20px 30px}
         .profile-row{display:flex;align-items:center;gap:16px;margin-bottom:24px;background:#e2d4b6;padding:12px 16px;border-radius:48px}
-        .avatar{font-size:52px;width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .avatar{font-size:52px;width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
         .avatar img{width:100%;height:100%;object-fit:cover}
         .level-info h2{margin:0;font-size:1.3rem;color:#21421e}
         .level-info p{margin:4px 0 0;color:#4a5b3c;font-weight:500}
@@ -64,13 +61,14 @@
         .level-progress-fill{background:#4a7c3f;height:100%;border-radius:20px;transition:width .2s}
         .task-section{margin-top:24px}
         .section-title{font-size:1.2rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;border-left:5px solid #7e9a5b;padding-left:12px;color:#21421e}
-        .task-card{background:#fffdf7;border-radius:20px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;border:1px solid #d4c4a4;box-shadow:0 1px 3px rgba(0,0,0,.05);position:relative;overflow:hidden;transition:opacity .3s}
+        .task-card{background:#fffdf7;border-radius:20px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;border:1px solid #d4c4a4;box-shadow:0 1px 3px rgba(0,0,0,.05);position:relative;overflow:hidden}
         .task-card.completed{opacity:.6}
         .task-card.completed::after{content:'';position:absolute;top:50%;left:12px;right:12px;height:2px;background:#4a7c3f;transform:translateY(-50%);z-index:1}
         .task-info{flex:1;position:relative;z-index:2}
         .task-title{font-weight:600;font-size:1rem;color:#1e1a13}
         .task-meta{font-size:.7rem;color:#6b6a44;display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;align-items:center}
         .task-xp{background:#e2d4b6;padding:2px 8px;border-radius:30px;font-weight:700;color:#21421e}
+        .task-deadline{color:#e74c3c;font-weight:600}
         .complete-btn{background:#4a7c3f;border:none;color:#fff;font-weight:700;padding:8px 16px;border-radius:40px;cursor:pointer;font-size:.8rem;flex-shrink:0;position:relative;z-index:2}
         .complete-btn:active{transform:scale(.96)}
         .edit-btn{background:#c9bb9a;border:none;color:#21421e;font-weight:700;padding:6px 10px;border-radius:20px;cursor:pointer;font-size:.7rem;flex-shrink:0;position:relative;z-index:2;margin-right:4px}
@@ -123,8 +121,10 @@
         .ranks-close-btn{background:#21421e;color:#f2e8c9;width:100%;border:none;padding:12px;border-radius:40px;font-weight:700;cursor:pointer;margin-top:14px;font-size:.9rem}
         .profile-header-card{background:#e2d4b6;border-radius:24px;padding:20px;margin-bottom:20px;display:flex;flex-direction:column;gap:16px}
         .profile-avatar-row{display:flex;align-items:center;gap:16px}
-        .profile-avatar-large{font-size:64px;background:#fffdf7;width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .profile-avatar-large{font-size:64px;background:#fffdf7;width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer}
         .profile-avatar-large img{width:100%;height:100%;object-fit:cover}
+        .profile-avatar-overlay{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.5);color:#fff;font-size:.6rem;padding:4px;text-align:center;opacity:0;transition:opacity .2s}
+        .profile-avatar-large:hover .profile-avatar-overlay,.profile-avatar-large:active .profile-avatar-overlay{opacity:1}
         .profile-name-info h2{margin:0;font-size:1.3rem;color:#21421e}
         .profile-rank-row{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap}
         .profile-global-progress{background:#fffdf7;border-radius:16px;padding:12px}
@@ -161,27 +161,27 @@
         .pwa-install-banner p{margin:0 0 10px;font-weight:600;color:#21421e}
         .pwa-install-btn{background:#4a7c3f;color:#fff;border:none;padding:10px 24px;border-radius:24px;font-weight:700;font-size:.9rem;cursor:pointer}
         .settings-warning{color:#e74c3c;font-size:.75rem;margin-top:8px;text-align:center}
+        #avatarUpload{display:none}
+        .avatar-change-btn{font-size:.65rem;color:#4a7c3f;cursor:pointer;text-decoration:underline;margin-top:4px}
     </style>
 </head>
 <body>
     <div class="login-screen" id="loginScreen">
         <div class="login-container">
             <div class="app-title">Folietine</div>
-            <div class="app-subtitle">RPG продуктивность</div>
             <div class="login-middle">
                 <div class="login-btn" id="loginBtn"><div class="play-triangle"></div></div>
-                <div class="login-text">Гостевой режим</div>
+                <div class="login-text">Войти в систему</div>
                 <div class="login-divider">— или —</div>
                 <button class="google-btn" id="googleLoginBtn"><span style="font-size:1.2rem">G</span> Войти через Google</button>
             </div>
-            <div class="version">v4.0 ⚔️</div>
+            <div class="version">v4.1 ⚔️</div>
             <div class="sync-status" id="syncStatus"><span class="sync-dot" id="syncDot"></span> <span id="syncText">Ожидание...</span></div>
         </div>
     </div>
     <div class="main-screen hidden" id="mainScreen">
         <div class="menu-button" id="menuButton">☰</div>
         <div class="back-button" id="backButton">←</div>
-        <div class="user-menu-btn" id="userMenuBtn">😎</div>
         <div class="menu-overlay" id="menuOverlay"></div>
         <div class="sections-dropdown" id="sectionsDropdown">
             <div class="dropdown-section-card active" data-section="main">🏠</div>
@@ -210,6 +210,7 @@
     <div id="taskModal" class="modal"><div class="modal-content"><h3 id="taskModalTitle">Новый квест</h3><input type="hidden" id="editTaskId"><label>Название</label><input type="text" id="taskTitle" maxlength="60"><label>Категория</label><select id="taskCategory"></select><label>Сложность</label><select id="taskDifficulty"><option value="easy">🟢 Лёгкий</option><option value="medium" selected>🟡 Средний</option><option value="hard">🟠 Сложный</option><option value="expert">🔴 Экспертный</option><option value="insane">💀 Сумасшедший</option></select><label>Тип</label><select id="taskType"><option value="quest">⚔️ Квест</option><option value="daily">🔄 Дейлик</option></select><div id="deadlineGroup"><label>Срок</label><select id="taskDeadlineSelect"><option value="1">Сегодня (1 день)</option><option value="2-3">2-3 дня</option><option value="4-7" selected>4-7 дней</option><option value="8-14">8-14 дней</option><option value="15-30">15-30 дней</option><option value="31-90">1-3 месяца</option><option value="91-180">Полгода</option><option value="181-365">Год</option><option value="nolimit">♾️ Бессрочный</option></select></div><div id="xpPreview" class="xp-preview">🏆 Награда: 25 XP</div><div class="modal-buttons"><button id="saveTaskBtn">Создать</button><button id="closeModalBtn">Отмена</button></div></div></div>
     <div id="categoryModal" class="modal"><div class="modal-content"><h3>Новая категория</h3><label>Название</label><input type="text" id="newCategoryName" maxlength="30"><label>Эмодзи</label><input type="text" id="newCategoryEmoji" maxlength="5" value="📁"><div class="modal-buttons"><button id="saveCategoryBtn">Создать</button><button id="closeCategoryModalBtn">Отмена</button></div></div></div>
     <div class="pwa-install-banner" id="pwaInstallBanner"><p>📜 Установи Folietine на телефон!</p><button class="pwa-install-btn" id="pwaInstallBtn">Установить</button></div>
+    <input type="file" id="avatarUpload" accept="image/*">
     <script>
     // ========== FIREBASE ==========
     firebase.initializeApp({apiKey:"AIzaSyCmGM8pOK3f33q6egwF_TfPv4KB1DYeAn0",authDomain:"folietine1.firebaseapp.com",projectId:"folietine1",storageBucket:"folietine1.firebasestorage.app",messagingSenderId:"922224179567",appId:"1:922224179567:web:04b504cd5db60ce84cd09a"});
@@ -217,22 +218,41 @@
     let userId=localStorage.getItem('folietine_user_id')||('user_'+Date.now().toString(36)+Math.random().toString(36).substr(2,5));
     localStorage.setItem('folietine_user_id',userId);
     let currentUser=null,isGuest=true,previousLevel=1;
+    let customAvatar=localStorage.getItem('folietine_avatar')||null;
     const syncDot=document.getElementById('syncDot'),syncText=document.getElementById('syncText');
     function updateSyncStatus(o){syncDot.className='sync-dot '+(o?'online':'offline');syncText.textContent=o?(isGuest?'Гость · Облако':'Облако подключено'):'Оффлайн';}
     window.addEventListener('online',()=>{updateSyncStatus(true);syncToCloud();});
     window.addEventListener('offline',()=>updateSyncStatus(false));
     updateSyncStatus(navigator.onLine);
-    async function syncToCloud(){if(!navigator.onLine)return;const u=isGuest?userId:currentUser.uid;try{await db.collection('users').doc(u).set({categories,tasks,dailyTemplates,updatedAt:new Date().toISOString(),isGuest,displayName:currentUser?.displayName||'Гость',photoURL:currentUser?.photoURL||null},{merge:true});updateSyncStatus(true);}catch(e){updateSyncStatus(false);}}
-    async function loadFromCloud(u){if(!navigator.onLine){updateSyncStatus(false);return false;}try{const d=await db.collection('users').doc(u).get();if(d.exists){const x=d.data();if(x.categories)categories=x.categories;if(x.tasks)tasks=x.tasks.map(t=>(t.isFailed??=false,t.isCompleted??=false,t.difficulty??='medium',t.xpReward??=10,t.type==='priority'&&(t.type='quest'),t.deadlineCategory??='4-7',t));if(x.dailyTemplates)dailyTemplates=x.dailyTemplates;updateSyncStatus(true);return true;}updateSyncStatus(true);return false;}catch(e){updateSyncStatus(false);return false;}}
+    async function syncToCloud(){if(!navigator.onLine)return;const u=isGuest?userId:currentUser.uid;try{await db.collection('users').doc(u).set({categories,tasks,dailyTemplates,updatedAt:new Date().toISOString(),isGuest,displayName:currentUser?.displayName||'Гость',photoURL:currentUser?.photoURL||null,customAvatar},{merge:true});updateSyncStatus(true);}catch(e){updateSyncStatus(false);}}
+    async function loadFromCloud(u){if(!navigator.onLine){updateSyncStatus(false);return false;}try{const d=await db.collection('users').doc(u).get();if(d.exists){const x=d.data();if(x.categories)categories=x.categories;if(x.tasks)tasks=x.tasks.map(t=>(t.isFailed??=false,t.isCompleted??=false,t.difficulty??='medium',t.xpReward??=10,t.type==='priority'&&(t.type='quest'),t.deadlineCategory??='4-7',t));if(x.dailyTemplates)dailyTemplates=x.dailyTemplates;if(x.customAvatar){customAvatar=x.customAvatar;localStorage.setItem('folietine_avatar',customAvatar);}updateSyncStatus(true);return true;}updateSyncStatus(true);return false;}catch(e){updateSyncStatus(false);return false;}}
     // ========== AUTH ==========
     let pa=false;
     document.getElementById('googleLoginBtn').addEventListener('click',async()=>{if(pa)return;pa=true;const p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});try{handleAuthSuccess((await auth.signInWithPopup(p)).user);}catch{try{await auth.signInWithRedirect(p);}catch{alert('Не удалось войти.');pa=false;}}});
     auth.getRedirectResult().then(r=>{if(r?.user)handleAuthSuccess(r.user);pa=false;}).catch(()=>{pa=false;});
     async function handleAuthSuccess(u){currentUser=u;isGuest=false;userId=u.uid;localStorage.setItem('folietine_user_id',userId);if(!await loadFromCloud(userId)){categories=getDefaultCats();tasks=[];dailyTemplates=[];saveAll();}updateSyncStatus(true);showMainScreenFn();pa=false;}
     document.getElementById('loginBtn').addEventListener('click',async()=>{isGuest=true;currentUser=null;userId=localStorage.getItem('folietine_user_id');if(!await loadFromCloud(userId)&&!localStorage.getItem("folietine_v4")){localStorage.setItem("folietine_v4","1");categories=getDefaultCats();tasks=[];dailyTemplates=[];saveAll();}updateSyncStatus(navigator.onLine);showMainScreenFn();});
-    document.getElementById('userMenuBtn').addEventListener('click',()=>switchSection('profile'));
-    function showMainScreenFn(){document.getElementById('loginScreen').classList.add('hidden');document.getElementById('mainScreen').classList.remove('hidden');previousLevel=getLevelFromXP(getGlobalXP());updateUserUI();renderUI();}
-    function updateUserUI(){const a=document.getElementById('avatarEmoji'),b=document.getElementById('userMenuBtn');if(currentUser?.photoURL){a.innerHTML=`<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;b.innerHTML=`<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover">`;}else{a.innerHTML='😎';b.innerHTML='😎';}}
+    function showMainScreenFn(){document.getElementById('loginScreen').classList.add('hidden');document.getElementById('mainScreen').classList.remove('hidden');previousLevel=getLevelFromXP(getGlobalXP());updateAllAvatars();renderUI();}
+    // ========== AVATAR SYSTEM ==========
+    function updateAllAvatars(){
+        const avatarEmoji=document.getElementById('avatarEmoji');
+        if(customAvatar){avatarEmoji.innerHTML=`<img src="${customAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;}
+        else if(currentUser?.photoURL){avatarEmoji.innerHTML=`<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;}
+        else{avatarEmoji.innerHTML='😎';}
+    }
+    document.getElementById('avatarUpload').addEventListener('change',function(e){
+        const file=e.target.files[0];
+        if(!file)return;
+        const reader=new FileReader();
+        reader.onload=function(ev){
+            customAvatar=ev.target.result;
+            localStorage.setItem('folietine_avatar',customAvatar);
+            updateAllAvatars();
+            renderUI();
+            syncToCloud();
+        };
+        reader.readAsDataURL(file);
+    });
     // ========== PWA ==========
     if('serviceWorker' in navigator)navigator.serviceWorker.register(URL.createObjectURL(new Blob(['self.addEventListener("fetch",e=>e.respondWith(fetch(e.request).catch(()=>caches.match(e.request))))'],{type:'application/javascript'}))).catch(()=>{});
     document.head.appendChild(Object.assign(document.createElement('link'),{rel:'manifest',href:URL.createObjectURL(new Blob([JSON.stringify({name:'Folietine',short_name:'Folietine',start_url:location.href,display:'standalone',background_color:'#21421e',theme_color:'#21421e',orientation:'portrait',icons:[{src:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#21421e"/><text x="256" y="340" font-size="280" text-anchor="middle" fill="white">📜</text></svg>'),sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]})],{type:'application/json'}))}));
@@ -246,6 +266,7 @@
     function getLevelFromXP(t){let x=t,l=1;while(x>=getXPForLevel(l)){x-=getXPForLevel(l);l++;if(l>100)break;}return Math.min(l,100);}
     function getXPInCurrentLevel(t){let x=t,l=1;while(x>=getXPForLevel(l)){x-=getXPForLevel(l);l++;if(l>100)return 0;}return x;}
     function getDailyDate(){const n=new Date();n.setHours(n.getHours()-4);return n.toDateString();}
+    function getTimeRemaining(deadline){if(!deadline)return'♾️';const now=new Date(),dl=new Date(deadline),diff=dl-now;if(diff<0){const abs=Math.abs(diff),mins=Math.floor(abs/60000),hrs=Math.floor(abs/3600000),days=Math.floor(abs/86400000);if(days>0)return`Просрочено на ${days} д`;if(hrs>0)return`Просрочено на ${hrs} ч`;return`Просрочено на ${mins} мин`;}const mins=Math.floor(diff/60000),hrs=Math.floor(diff/3600000),days=Math.floor(diff/86400000);if(days>1)return`Осталось ${days} д`;if(days===1)return'Остался 1 день';if(hrs>1)return`Осталось ${hrs} ч`;if(hrs===1)return'Остался 1 час';if(mins>1)return`Осталось ${mins} мин`;return'Меньше минуты';}
     const CATEGORY_RANKS={study:["Ученик","Студент","Исследователь","Эрудит","Мыслитель","Мудрец","Философ","Просветлённый","Гений","Специалист","Доцент","Маг волшебник"],health:["Новичок","Активист","Атлет","Воин","Гладиатор","Чемпион","Терминатор","Сверхчеловек","Полубог","Неудержимый","Бог","Титан"],future:["Стажёр","Специалист","Профи","Эксперт","Мастер","Виртуоз","Гуру","Инноватор","Визионер","Создатель","Магнат","Тони Старк"],selfreal:["Мечтатель","Искатель","Творец","Свояк","Вдохновитель","Созидатель","Душа компании","Маэстро","Легенда","Икона","Феномен","Сам себе психолог"]};
     const RANK_RANGES=[{min:1,max:4},{min:5,max:9},{min:10,max:15},{min:16,max:22},{min:23,max:30},{min:31,max:39},{min:40,max:49},{min:50,max:60},{min:61,max:72},{min:73,max:85},{min:86,max:95},{min:96,max:100}];
     function getRankIndex(l){for(let i=0;i<RANK_RANGES.length;i++)if(l>=RANK_RANGES[i].min&&l<=RANK_RANGES[i].max)return i;return 11;}
@@ -317,7 +338,7 @@
         const activeQuests=sortQuests(tasks.filter(t=>t.type==="quest"&&!t.isCompleted&&!t.isFailed));
         const visibleQuests=activeQuests.slice(0,MAX_VISIBLE_QUESTS);
         document.getElementById("questCounter").innerHTML=activeQuests.length>MAX_VISIBLE_QUESTS?`Показано ${MAX_VISIBLE_QUESTS} из ${activeQuests.length}`:'';
-        document.getElementById("questsList").innerHTML=visibleQuests.length===0?"<div class='empty-text'>Нет активных квестов</div>":visibleQuests.map(t=>{const c=categories.find(x=>x.id===t.categoryId),dl=t.deadlineCategory==='nolimit'?'♾️':(t.deadline?new Date(t.deadline).toLocaleDateString():"—");return`<div class="task-card"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${c?.emoji||"📁"} ${c?.name||"?"}</span><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span>📅 ${dl}</span></div></div><button class="edit-btn" data-edit-id="${t.id}">✏️</button><button class="complete-btn" data-id="${t.id}">✅</button></div>`;}).join("");
+        document.getElementById("questsList").innerHTML=visibleQuests.length===0?"<div class='empty-text'>Нет активных квестов</div>":visibleQuests.map(t=>{const c=categories.find(x=>x.id===t.categoryId),tr=getTimeRemaining(t.deadline),isOverdue=t.deadline&&new Date(t.deadline)<new Date();return`<div class="task-card"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${c?.emoji||"📁"} ${c?.name||"?"}</span><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span class="task-deadline" style="color:${isOverdue?'#e74c3c':'#6b6a44'}">${tr}</span></div></div><button class="edit-btn" data-edit-id="${t.id}">✏️</button><button class="complete-btn" data-id="${t.id}">✅</button></div>`;}).join("");
         const ts=getDailyDate(),dailies=sortQuests(tasks.filter(t=>t.type==="daily"&&t.dailyDate===ts));
         document.getElementById("dailyTasksList").innerHTML=dailies.length===0?"<div class='empty-text'>Нет активных дейликов</div>":dailies.map(t=>`<div class="task-card${t.isCompleted?' completed':''}"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span>🔥 ежедневно</span></div></div>${t.isCompleted?'<span style="color:#4a7c3f;font-weight:bold;z-index:2">✓</span>':`<button class="edit-btn" data-edit-id="${t.id}">✏️</button><button class="complete-btn" data-id="${t.id}">✅</button>`}</div>`).join("");
         document.getElementById("categoriesGrid").innerHTML=categories.map(c=>{const cl=getLevelFromXP(c.xp),xcl=getXPInCurrentLevel(c.xp),xcn=getXPForLevel(cl),cp=Math.min(100,(xcl/xcn)*100),xr=Math.max(0,xcn-xcl),cr=getCategoryRank(c.type,cl);return`<div class="category-card" data-category-id="${c.id}"><div class="category-card-header"><div class="category-card-emoji">${c.emoji||"📁"}</div><div class="category-card-info"><div class="category-card-name">${esc(c.name)}</div><div class="category-card-rank">${cr}</div></div></div><div class="category-card-progress"><div class="category-card-progress-header"><span>Ур. ${cl}</span><span>${xr} XP</span></div><div class="category-card-progress-bar"><div class="category-card-progress-fill" style="width:${cp}%"></div></div></div></div>`;}).join("");
@@ -326,8 +347,8 @@
         document.getElementById("categoryDetailHeader").innerHTML=`<button class="delete-category-btn" id="deleteCategoryBtn">✕</button><div class="category-detail-top"><div class="category-detail-emoji">${c.emoji||"📁"}</div><div class="category-detail-info"><h2>${esc(c.name)}</h2><div class="category-detail-rank-row"><p>Ур. ${cl} · ${cr}</p><button class="rank-info-btn" id="detailRankInfoBtn">i</button></div></div></div><div class="category-detail-progress"><div class="category-detail-progress-header"><span>До следующего уровня</span><span>${xcl} / ${xcn} XP</span></div><div class="category-detail-progress-bar"><div class="category-detail-progress-fill" style="width:${cp}%"></div></div></div>`;
         setTimeout(()=>{const db=document.getElementById('deleteCategoryBtn');if(db)db.addEventListener('click',e=>{e.stopPropagation();confirmDeleteCategory(selectedCategoryId);});const dr=document.getElementById('detailRankInfoBtn');if(dr)dr.addEventListener('click',e=>{e.stopPropagation();showRanksInfo(selectedCategoryId);});},0);
         const cts=sortQuests(tasks.filter(t=>t.categoryId===selectedCategoryId&&!t.isFailed));
-        document.getElementById("categoryTasksList").innerHTML=cts.length===0?"<div class='empty-text'>Нет задач в этой категории</div>":cts.map(t=>{const dl=t.type==="daily"?'🔥':(t.deadlineCategory==='nolimit'?'♾️':(t.deadline?new Date(t.deadline).toLocaleDateString():"—"));return`<div class="task-card${t.isCompleted?' completed':''}"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span>${dl}</span></div></div>${t.isCompleted?'<span style="color:#4a7c3f;font-weight:bold;z-index:2">✓</span>':`<button class="edit-btn" data-edit-id="${t.id}">✏️</button><button class="complete-btn" data-id="${t.id}">✅</button>`}</div>`;}).join("");}}
-        document.getElementById("profileHeaderCard").innerHTML=`<div class="profile-avatar-row"><div class="profile-avatar-large">${currentUser?.photoURL?`<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover">`:'😎'}</div><div class="profile-name-info"><h2>${esc(currentUser?.displayName||'Гость')}</h2><div class="profile-rank-row"><span class="rank-badge">Ур. ${gLvl} · ${domRank}</span><span class="archetype-badge">${arch.emoji} ${arch.name}</span><button class="rank-info-btn" id="profileRankInfoBtn">i</button></div></div></div><div class="profile-global-progress"><div class="profile-global-progress-header"><span>До следующего уровня</span><span>${xpInL} / ${xpForN} XP</span></div><div class="profile-global-progress-bar"><div class="profile-global-progress-fill" style="width:${pp}%"></div></div></div>`;
+        document.getElementById("categoryTasksList").innerHTML=cts.length===0?"<div class='empty-text'>Нет задач в этой категории</div>":cts.map(t=>{const dl=t.type==="daily"?'🔥':(t.deadlineCategory==='nolimit'?'♾️':getTimeRemaining(t.deadline)),isOverdue=t.deadline&&new Date(t.deadline)<new Date();return`<div class="task-card${t.isCompleted?' completed':''}"><div class="task-info"><div class="task-title">${esc(t.title)}</div><div class="task-meta"><span>${dE[t.difficulty]||'🟡'}</span><span class="task-xp">+${t.xpReward||0} XP</span><span style="color:${isOverdue?'#e74c3c':'#6b6a44'}">${dl}</span></div></div>${t.isCompleted?'<span style="color:#4a7c3f;font-weight:bold;z-index:2">✓</span>':`<button class="edit-btn" data-edit-id="${t.id}">✏️</button><button class="complete-btn" data-id="${t.id}">✅</button>`}</div>`;}).join("");}}
+        document.getElementById("profileHeaderCard").innerHTML=`<div class="profile-avatar-row"><div class="profile-avatar-large" onclick="document.getElementById('avatarUpload').click()">${customAvatar?`<img src="${customAvatar}" style="width:100%;height:100%;object-fit:cover">`:(currentUser?.photoURL?`<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover">`:'😎')}<div class="profile-avatar-overlay">📷 Сменить</div></div><div class="profile-name-info"><h2>${esc(currentUser?.displayName||'Гость')}</h2><div class="profile-rank-row"><span class="rank-badge">Ур. ${gLvl} · ${domRank}</span><span class="archetype-badge">${arch.emoji} ${arch.name}</span><button class="rank-info-btn" id="profileRankInfoBtn">i</button></div></div></div><div class="profile-global-progress"><div class="profile-global-progress-header"><span>До следующего уровня</span><span>${xpInL} / ${xpForN} XP</span></div><div class="profile-global-progress-bar"><div class="profile-global-progress-fill" style="width:${pp}%"></div></div></div>`;
         setTimeout(()=>{const pr=document.getElementById('profileRankInfoBtn');if(pr)pr.addEventListener('click',e=>{e.stopPropagation();showRanksInfo();});},0);
         document.getElementById("profileStats").innerHTML=`<div class="stat-row"><span class="stat-label">✅ Выполнено задач</span><span class="stat-value">${getCompletedTasksCount()}</span></div><div class="stat-row"><span class="stat-label">❌ Провалено задач</span><span class="stat-value">${getFailedTasksCount()}</span></div><div class="stat-row"><span class="stat-label">📈 Получено XP</span><span class="stat-value">${getTotalXPEarned()}</span></div><div class="stat-row"><span class="stat-label">💔 Потеряно XP</span><span class="stat-value">${getTotalXPLost()}</span></div><div class="stat-row"><span class="stat-label">🏆 Доминанта</span><span class="stat-value">${getBestCategory()}</span></div>`;
         const titles=getSpecialTitles();let aHTML='';
@@ -343,15 +364,7 @@
     function init(){
         loadLocal();syncDaily();checkOverdue();renderUI();
         document.getElementById("closeModalBtn").onclick=()=>document.getElementById('taskModal').style.display="none";
-        document.getElementById("saveTaskBtn").onclick=()=>{
-            const editId=document.getElementById("editTaskId").value,ti=document.getElementById("taskTitle").value,ci=document.getElementById("taskCategory").value,diff=document.getElementById("taskDifficulty").value,ty=document.getElementById("taskType").value,dl=document.getElementById("taskDeadlineSelect").value;
-            if(!ti){alert("Введите название");return;}
-            if(editId){const t=tasks.find(x=>String(x.id)===String(editId));updateTask(editId,ti,ci,calcXP(diff,ci,dl,t?.type==='daily'),diff,dl);}
-            else{const isDaily=ty==='daily';addTask(ti,ci,calcXP(diff,ci,dl,isDaily),ty,diff,isDaily?null:dl);}
-            document.getElementById('taskModal').style.display="none";document.getElementById("taskTitle").value='';document.getElementById("editTaskId").value='';
-            document.getElementById("taskType").disabled=false;document.getElementById("saveTaskBtn").textContent='Создать';
-            syncDaily();checkOverdue();renderUI();
-        };
+        document.getElementById("saveTaskBtn").onclick=()=>{const editId=document.getElementById("editTaskId").value,ti=document.getElementById("taskTitle").value,ci=document.getElementById("taskCategory").value,diff=document.getElementById("taskDifficulty").value,ty=document.getElementById("taskType").value,dl=document.getElementById("taskDeadlineSelect").value;if(!ti){alert("Введите название");return;}if(editId){const t=tasks.find(x=>String(x.id)===String(editId));updateTask(editId,ti,ci,calcXP(diff,ci,dl,t?.type==='daily'),diff,dl);}else{const isDaily=ty==='daily';addTask(ti,ci,calcXP(diff,ci,dl,isDaily),ty,diff,isDaily?null:dl);}document.getElementById('taskModal').style.display="none";document.getElementById("taskTitle").value='';document.getElementById("editTaskId").value='';document.getElementById("taskType").disabled=false;document.getElementById("saveTaskBtn").textContent='Создать';syncDaily();checkOverdue();renderUI();};
         document.getElementById("addCategoryBtn").onclick=()=>{document.getElementById("newCategoryName").value="";document.getElementById("newCategoryEmoji").value="📁";document.getElementById('categoryModal').style.display="flex";};
         document.getElementById("closeCategoryModalBtn").onclick=()=>document.getElementById('categoryModal').style.display="none";
         document.getElementById("saveCategoryBtn").onclick=()=>{const n=document.getElementById("newCategoryName").value,em=document.getElementById("newCategoryEmoji").value;if(!n){alert("Введите название категории");return;}addCategory(n,em,'custom');document.getElementById('categoryModal').style.display="none";document.getElementById("newCategoryName").value='';document.getElementById("newCategoryEmoji").value="📁";renderUI();};
